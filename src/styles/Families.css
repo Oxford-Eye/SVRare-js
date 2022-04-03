@@ -1,0 +1,8 @@
+#main {
+  margin: 10px;
+}
+.card {
+  margin: 10px;
+  width: 275px;
+  display: inline-block;
+}

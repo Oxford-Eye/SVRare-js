@@ -1,0 +1,2 @@
+import { Model } from 'sequelize';
+
