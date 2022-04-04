@@ -1,9 +1,9 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
+import type { Patient, PatientId } from './Patient';
 import type { SV, SVId } from './SV';
-import type { patient, patientId } from './patient';
 
-export interface patient_SVAttributes {
+export interface Patient_SVAttributes {
   id: number;
   patient_id: number;
   sv_id: number;
@@ -16,12 +16,12 @@ export interface patient_SVAttributes {
   validated_as_real?: boolean;
 }
 
-export type patient_SVPk = "id";
-export type patient_SVId = patient_SV[patient_SVPk];
-export type patient_SVOptionalAttributes = "filter" | "is_duplicate" | "igv_real" | "validated_as_real";
-export type patient_SVCreationAttributes = Optional<patient_SVAttributes, patient_SVOptionalAttributes>;
+export type Patient_SVPk = "id";
+export type Patient_SVId = Patient_SV[Patient_SVPk];
+export type Patient_SVOptionalAttributes = "filter" | "is_duplicate" | "igv_real" | "validated_as_real";
+export type Patient_SVCreationAttributes = Optional<Patient_SVAttributes, Patient_SVOptionalAttributes>;
 
-export class patient_SV extends Model<patient_SVAttributes, patient_SVCreationAttributes> implements patient_SVAttributes {
+export class Patient_SV extends Model<Patient_SVAttributes, Patient_SVCreationAttributes> implements Patient_SVAttributes {
   id!: number;
   patient_id!: number;
   sv_id!: number;
@@ -33,19 +33,19 @@ export class patient_SV extends Model<patient_SVAttributes, patient_SVCreationAt
   igv_real?: boolean;
   validated_as_real?: boolean;
 
-  // patient_SV belongsTo SV via sv_id
+  // Patient_SV belongsTo Patient via patient_id
+  patient!: Patient;
+  getPatient!: Sequelize.BelongsToGetAssociationMixin<Patient>;
+  setPatient!: Sequelize.BelongsToSetAssociationMixin<Patient, PatientId>;
+  createPatient!: Sequelize.BelongsToCreateAssociationMixin<Patient>;
+  // Patient_SV belongsTo SV via sv_id
   sv!: SV;
   getSv!: Sequelize.BelongsToGetAssociationMixin<SV>;
   setSv!: Sequelize.BelongsToSetAssociationMixin<SV, SVId>;
   createSv!: Sequelize.BelongsToCreateAssociationMixin<SV>;
-  // patient_SV belongsTo patient via patient_id
-  patient!: patient;
-  getPatient!: Sequelize.BelongsToGetAssociationMixin<patient>;
-  setPatient!: Sequelize.BelongsToSetAssociationMixin<patient, patientId>;
-  createPatient!: Sequelize.BelongsToCreateAssociationMixin<patient>;
 
-  static initModel(sequelize: Sequelize.Sequelize): typeof patient_SV {
-    return patient_SV.init({
+  static initModel(sequelize: Sequelize.Sequelize): typeof Patient_SV {
+    return Patient_SV.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -56,7 +56,7 @@ export class patient_SV extends Model<patient_SVAttributes, patient_SVCreationAt
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'patient',
+        model: 'Patient',
         key: 'id'
       }
     },
@@ -98,25 +98,25 @@ export class patient_SV extends Model<patient_SVAttributes, patient_SVCreationAt
     }
   }, {
     sequelize,
-    tableName: 'patient_SV',
+    tableName: 'Patient_SV',
     timestamps: false,
     indexes: [
       {
-        name: "ix_patient_SV_validated_as_real",
+        name: "ix_Patient_SV_validated_as_real",
         fields: [
           { name: "validated_as_real" },
         ]
       },
       {
-        name: "ix_patient_SV_igv_real",
+        name: "ix_Patient_SV_filter",
         fields: [
-          { name: "igv_real" },
+          { name: "filter" },
         ]
       },
       {
-        name: "ix_patient_SV_filter",
+        name: "ix_Patient_SV_igv_real",
         fields: [
-          { name: "filter" },
+          { name: "igv_real" },
         ]
       },
     ]

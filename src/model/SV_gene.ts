@@ -1,36 +1,36 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
+import type { Gene, GeneId } from './Gene';
 import type { SV, SVId } from './SV';
-import type { gene, geneId } from './gene';
 
-export interface SV_geneAttributes {
+export interface SV_GeneAttributes {
   id: number;
   sv_id: number;
   gene_id: number;
 }
 
-export type SV_genePk = "id";
-export type SV_geneId = SV_gene[SV_genePk];
-export type SV_geneCreationAttributes = SV_geneAttributes;
+export type SV_GenePk = "id";
+export type SV_GeneId = SV_Gene[SV_GenePk];
+export type SV_GeneCreationAttributes = SV_GeneAttributes;
 
-export class SV_gene extends Model<SV_geneAttributes, SV_geneCreationAttributes> implements SV_geneAttributes {
+export class SV_Gene extends Model<SV_GeneAttributes, SV_GeneCreationAttributes> implements SV_GeneAttributes {
   id!: number;
   sv_id!: number;
   gene_id!: number;
 
-  // SV_gene belongsTo SV via sv_id
+  // SV_Gene belongsTo Gene via gene_id
+  gene!: Gene;
+  getGene!: Sequelize.BelongsToGetAssociationMixin<Gene>;
+  setGene!: Sequelize.BelongsToSetAssociationMixin<Gene, GeneId>;
+  createGene!: Sequelize.BelongsToCreateAssociationMixin<Gene>;
+  // SV_Gene belongsTo SV via sv_id
   sv!: SV;
   getSv!: Sequelize.BelongsToGetAssociationMixin<SV>;
   setSv!: Sequelize.BelongsToSetAssociationMixin<SV, SVId>;
   createSv!: Sequelize.BelongsToCreateAssociationMixin<SV>;
-  // SV_gene belongsTo gene via gene_id
-  gene!: gene;
-  getGene!: Sequelize.BelongsToGetAssociationMixin<gene>;
-  setGene!: Sequelize.BelongsToSetAssociationMixin<gene, geneId>;
-  createGene!: Sequelize.BelongsToCreateAssociationMixin<gene>;
 
-  static initModel(sequelize: Sequelize.Sequelize): typeof SV_gene {
-    return SV_gene.init({
+  static initModel(sequelize: Sequelize.Sequelize): typeof SV_Gene {
+    return SV_Gene.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -49,13 +49,13 @@ export class SV_gene extends Model<SV_geneAttributes, SV_geneCreationAttributes>
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'gene',
+        model: 'Gene',
         key: 'id'
       }
     }
   }, {
     sequelize,
-    tableName: 'SV_gene',
+    tableName: 'SV_Gene',
     timestamps: false
   });
   }

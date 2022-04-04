@@ -1,36 +1,36 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
+import type { Gene, GeneId } from './Gene';
 import type { HPO, HPOId } from './HPO';
-import type { gene, geneId } from './gene';
 
-export interface HPO_geneAttributes {
+export interface HPO_GeneAttributes {
   id: number;
   hpo_id: number;
   gene_id: number;
 }
 
-export type HPO_genePk = "id";
-export type HPO_geneId = HPO_gene[HPO_genePk];
-export type HPO_geneCreationAttributes = HPO_geneAttributes;
+export type HPO_GenePk = "id";
+export type HPO_GeneId = HPO_Gene[HPO_GenePk];
+export type HPO_GeneCreationAttributes = HPO_GeneAttributes;
 
-export class HPO_gene extends Model<HPO_geneAttributes, HPO_geneCreationAttributes> implements HPO_geneAttributes {
+export class HPO_Gene extends Model<HPO_GeneAttributes, HPO_GeneCreationAttributes> implements HPO_GeneAttributes {
   id!: number;
   hpo_id!: number;
   gene_id!: number;
 
-  // HPO_gene belongsTo HPO via hpo_id
+  // HPO_Gene belongsTo Gene via gene_id
+  gene!: Gene;
+  getGene!: Sequelize.BelongsToGetAssociationMixin<Gene>;
+  setGene!: Sequelize.BelongsToSetAssociationMixin<Gene, GeneId>;
+  createGene!: Sequelize.BelongsToCreateAssociationMixin<Gene>;
+  // HPO_Gene belongsTo HPO via hpo_id
   hpo!: HPO;
   getHpo!: Sequelize.BelongsToGetAssociationMixin<HPO>;
   setHpo!: Sequelize.BelongsToSetAssociationMixin<HPO, HPOId>;
   createHpo!: Sequelize.BelongsToCreateAssociationMixin<HPO>;
-  // HPO_gene belongsTo gene via gene_id
-  gene!: gene;
-  getGene!: Sequelize.BelongsToGetAssociationMixin<gene>;
-  setGene!: Sequelize.BelongsToSetAssociationMixin<gene, geneId>;
-  createGene!: Sequelize.BelongsToCreateAssociationMixin<gene>;
 
-  static initModel(sequelize: Sequelize.Sequelize): typeof HPO_gene {
-    return HPO_gene.init({
+  static initModel(sequelize: Sequelize.Sequelize): typeof HPO_Gene {
+    return HPO_Gene.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -49,13 +49,13 @@ export class HPO_gene extends Model<HPO_geneAttributes, HPO_geneCreationAttribut
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'gene',
+        model: 'Gene',
         key: 'id'
       }
     }
   }, {
     sequelize,
-    tableName: 'HPO_gene',
+    tableName: 'HPO_Gene',
     timestamps: false
   });
   }

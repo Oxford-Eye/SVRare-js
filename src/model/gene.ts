@@ -1,11 +1,11 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
-import type { HPO_gene, HPO_geneId } from './HPO_gene';
+import type { HPO_Gene, HPO_GeneId } from './HPO_Gene';
+import type { SV_Gene, SV_GeneId } from './SV_Gene';
 import type { SV_cds, SV_cdsId } from './SV_cds';
 import type { SV_exon, SV_exonId } from './SV_exon';
-import type { SV_gene, SV_geneId } from './SV_gene';
 
-export interface geneAttributes {
+export interface GeneAttributes {
   id: number;
   symbol?: string;
   chrom: string;
@@ -13,31 +13,43 @@ export interface geneAttributes {
   end?: number;
 }
 
-export type genePk = "id";
-export type geneId = gene[genePk];
-export type geneOptionalAttributes = "symbol" | "start" | "end";
-export type geneCreationAttributes = Optional<geneAttributes, geneOptionalAttributes>;
+export type GenePk = "id";
+export type GeneId = Gene[GenePk];
+export type GeneOptionalAttributes = "symbol" | "start" | "end";
+export type GeneCreationAttributes = Optional<GeneAttributes, GeneOptionalAttributes>;
 
-export class gene extends Model<geneAttributes, geneCreationAttributes> implements geneAttributes {
+export class Gene extends Model<GeneAttributes, GeneCreationAttributes> implements GeneAttributes {
   id!: number;
   symbol?: string;
   chrom!: string;
   start?: number;
   end?: number;
 
-  // gene hasMany HPO_gene via gene_id
-  HPO_genes!: HPO_gene[];
-  getHPO_genes!: Sequelize.HasManyGetAssociationsMixin<HPO_gene>;
-  setHPO_genes!: Sequelize.HasManySetAssociationsMixin<HPO_gene, HPO_geneId>;
-  addHPO_gene!: Sequelize.HasManyAddAssociationMixin<HPO_gene, HPO_geneId>;
-  addHPO_genes!: Sequelize.HasManyAddAssociationsMixin<HPO_gene, HPO_geneId>;
-  createHPO_gene!: Sequelize.HasManyCreateAssociationMixin<HPO_gene>;
-  removeHPO_gene!: Sequelize.HasManyRemoveAssociationMixin<HPO_gene, HPO_geneId>;
-  removeHPO_genes!: Sequelize.HasManyRemoveAssociationsMixin<HPO_gene, HPO_geneId>;
-  hasHPO_gene!: Sequelize.HasManyHasAssociationMixin<HPO_gene, HPO_geneId>;
-  hasHPO_genes!: Sequelize.HasManyHasAssociationsMixin<HPO_gene, HPO_geneId>;
-  countHPO_genes!: Sequelize.HasManyCountAssociationsMixin;
-  // gene hasMany SV_cds via gene_id
+  // Gene hasMany HPO_Gene via gene_id
+  HPO_Genes!: HPO_Gene[];
+  getHPO_Genes!: Sequelize.HasManyGetAssociationsMixin<HPO_Gene>;
+  setHPO_Genes!: Sequelize.HasManySetAssociationsMixin<HPO_Gene, HPO_GeneId>;
+  addHPO_Gene!: Sequelize.HasManyAddAssociationMixin<HPO_Gene, HPO_GeneId>;
+  addHPO_Genes!: Sequelize.HasManyAddAssociationsMixin<HPO_Gene, HPO_GeneId>;
+  createHPO_Gene!: Sequelize.HasManyCreateAssociationMixin<HPO_Gene>;
+  removeHPO_Gene!: Sequelize.HasManyRemoveAssociationMixin<HPO_Gene, HPO_GeneId>;
+  removeHPO_Genes!: Sequelize.HasManyRemoveAssociationsMixin<HPO_Gene, HPO_GeneId>;
+  hasHPO_Gene!: Sequelize.HasManyHasAssociationMixin<HPO_Gene, HPO_GeneId>;
+  hasHPO_Genes!: Sequelize.HasManyHasAssociationsMixin<HPO_Gene, HPO_GeneId>;
+  countHPO_Genes!: Sequelize.HasManyCountAssociationsMixin;
+  // Gene hasMany SV_Gene via gene_id
+  SV_Genes!: SV_Gene[];
+  getSV_Genes!: Sequelize.HasManyGetAssociationsMixin<SV_Gene>;
+  setSV_Genes!: Sequelize.HasManySetAssociationsMixin<SV_Gene, SV_GeneId>;
+  addSV_Gene!: Sequelize.HasManyAddAssociationMixin<SV_Gene, SV_GeneId>;
+  addSV_Genes!: Sequelize.HasManyAddAssociationsMixin<SV_Gene, SV_GeneId>;
+  createSV_Gene!: Sequelize.HasManyCreateAssociationMixin<SV_Gene>;
+  removeSV_Gene!: Sequelize.HasManyRemoveAssociationMixin<SV_Gene, SV_GeneId>;
+  removeSV_Genes!: Sequelize.HasManyRemoveAssociationsMixin<SV_Gene, SV_GeneId>;
+  hasSV_Gene!: Sequelize.HasManyHasAssociationMixin<SV_Gene, SV_GeneId>;
+  hasSV_Genes!: Sequelize.HasManyHasAssociationsMixin<SV_Gene, SV_GeneId>;
+  countSV_Genes!: Sequelize.HasManyCountAssociationsMixin;
+  // Gene hasMany SV_cds via gene_id
   SV_cds!: SV_cds[];
   getSV_cds!: Sequelize.HasManyGetAssociationsMixin<SV_cds>;
   setSV_cds!: Sequelize.HasManySetAssociationsMixin<SV_cds, SV_cdsId>;
@@ -49,7 +61,7 @@ export class gene extends Model<geneAttributes, geneCreationAttributes> implemen
   hasSV_cd!: Sequelize.HasManyHasAssociationMixin<SV_cds, SV_cdsId>;
   hasSV_cds!: Sequelize.HasManyHasAssociationsMixin<SV_cds, SV_cdsId>;
   countSV_cds!: Sequelize.HasManyCountAssociationsMixin;
-  // gene hasMany SV_exon via gene_id
+  // Gene hasMany SV_exon via gene_id
   SV_exons!: SV_exon[];
   getSV_exons!: Sequelize.HasManyGetAssociationsMixin<SV_exon>;
   setSV_exons!: Sequelize.HasManySetAssociationsMixin<SV_exon, SV_exonId>;
@@ -61,21 +73,9 @@ export class gene extends Model<geneAttributes, geneCreationAttributes> implemen
   hasSV_exon!: Sequelize.HasManyHasAssociationMixin<SV_exon, SV_exonId>;
   hasSV_exons!: Sequelize.HasManyHasAssociationsMixin<SV_exon, SV_exonId>;
   countSV_exons!: Sequelize.HasManyCountAssociationsMixin;
-  // gene hasMany SV_gene via gene_id
-  SV_genes!: SV_gene[];
-  getSV_genes!: Sequelize.HasManyGetAssociationsMixin<SV_gene>;
-  setSV_genes!: Sequelize.HasManySetAssociationsMixin<SV_gene, SV_geneId>;
-  addSV_gene!: Sequelize.HasManyAddAssociationMixin<SV_gene, SV_geneId>;
-  addSV_genes!: Sequelize.HasManyAddAssociationsMixin<SV_gene, SV_geneId>;
-  createSV_gene!: Sequelize.HasManyCreateAssociationMixin<SV_gene>;
-  removeSV_gene!: Sequelize.HasManyRemoveAssociationMixin<SV_gene, SV_geneId>;
-  removeSV_genes!: Sequelize.HasManyRemoveAssociationsMixin<SV_gene, SV_geneId>;
-  hasSV_gene!: Sequelize.HasManyHasAssociationMixin<SV_gene, SV_geneId>;
-  hasSV_genes!: Sequelize.HasManyHasAssociationsMixin<SV_gene, SV_geneId>;
-  countSV_genes!: Sequelize.HasManyCountAssociationsMixin;
 
-  static initModel(sequelize: Sequelize.Sequelize): typeof gene {
-    return gene.init({
+  static initModel(sequelize: Sequelize.Sequelize): typeof Gene {
+    return Gene.init({
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -100,25 +100,25 @@ export class gene extends Model<geneAttributes, geneCreationAttributes> implemen
     }
   }, {
     sequelize,
-    tableName: 'gene',
+    tableName: 'Gene',
     timestamps: false,
     indexes: [
       {
-        name: "ix_gene_start",
+        name: "ix_Gene_start",
         fields: [
           { name: "start" },
         ]
       },
       {
-        name: "ix_gene_end",
+        name: "ix_Gene_symbol",
         fields: [
-          { name: "end" },
+          { name: "symbol" },
         ]
       },
       {
-        name: "ix_gene_symbol",
+        name: "ix_Gene_end",
         fields: [
-          { name: "symbol" },
+          { name: "end" },
         ]
       },
     ]

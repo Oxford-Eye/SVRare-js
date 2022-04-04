@@ -1,7 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
+import type { HPO_Gene, HPO_GeneId } from './HPO_Gene';
 import type { HPO_HPO, HPO_HPOId } from './HPO_HPO';
-import type { HPO_gene, HPO_geneId } from './HPO_gene';
 import type { Patient_HPO, Patient_HPOId } from './Patient_HPO';
 
 export interface HPOAttributes {
@@ -22,6 +22,18 @@ export class HPO extends Model<HPOAttributes, HPOCreationAttributes> implements 
   definition?: string;
   comment?: string;
 
+  // HPO hasMany HPO_Gene via hpo_id
+  HPO_Genes!: HPO_Gene[];
+  getHPO_Genes!: Sequelize.HasManyGetAssociationsMixin<HPO_Gene>;
+  setHPO_Genes!: Sequelize.HasManySetAssociationsMixin<HPO_Gene, HPO_GeneId>;
+  addHPO_Gene!: Sequelize.HasManyAddAssociationMixin<HPO_Gene, HPO_GeneId>;
+  addHPO_Genes!: Sequelize.HasManyAddAssociationsMixin<HPO_Gene, HPO_GeneId>;
+  createHPO_Gene!: Sequelize.HasManyCreateAssociationMixin<HPO_Gene>;
+  removeHPO_Gene!: Sequelize.HasManyRemoveAssociationMixin<HPO_Gene, HPO_GeneId>;
+  removeHPO_Genes!: Sequelize.HasManyRemoveAssociationsMixin<HPO_Gene, HPO_GeneId>;
+  hasHPO_Gene!: Sequelize.HasManyHasAssociationMixin<HPO_Gene, HPO_GeneId>;
+  hasHPO_Genes!: Sequelize.HasManyHasAssociationsMixin<HPO_Gene, HPO_GeneId>;
+  countHPO_Genes!: Sequelize.HasManyCountAssociationsMixin;
   // HPO hasMany HPO_HPO via parent_hpo_id
   HPO_HPOs!: HPO_HPO[];
   getHPO_HPOs!: Sequelize.HasManyGetAssociationsMixin<HPO_HPO>;
@@ -46,18 +58,6 @@ export class HPO extends Model<HPOAttributes, HPOCreationAttributes> implements 
   hasHpo_HPO_HPO!: Sequelize.HasManyHasAssociationMixin<HPO_HPO, HPO_HPOId>;
   hasHpo_HPO_HPOs!: Sequelize.HasManyHasAssociationsMixin<HPO_HPO, HPO_HPOId>;
   countHpo_HPO_HPOs!: Sequelize.HasManyCountAssociationsMixin;
-  // HPO hasMany HPO_gene via hpo_id
-  HPO_genes!: HPO_gene[];
-  getHPO_genes!: Sequelize.HasManyGetAssociationsMixin<HPO_gene>;
-  setHPO_genes!: Sequelize.HasManySetAssociationsMixin<HPO_gene, HPO_geneId>;
-  addHPO_gene!: Sequelize.HasManyAddAssociationMixin<HPO_gene, HPO_geneId>;
-  addHPO_genes!: Sequelize.HasManyAddAssociationsMixin<HPO_gene, HPO_geneId>;
-  createHPO_gene!: Sequelize.HasManyCreateAssociationMixin<HPO_gene>;
-  removeHPO_gene!: Sequelize.HasManyRemoveAssociationMixin<HPO_gene, HPO_geneId>;
-  removeHPO_genes!: Sequelize.HasManyRemoveAssociationsMixin<HPO_gene, HPO_geneId>;
-  hasHPO_gene!: Sequelize.HasManyHasAssociationMixin<HPO_gene, HPO_geneId>;
-  hasHPO_genes!: Sequelize.HasManyHasAssociationsMixin<HPO_gene, HPO_geneId>;
-  countHPO_genes!: Sequelize.HasManyCountAssociationsMixin;
   // HPO hasMany Patient_HPO via hpo_id
   Patient_HPOs!: Patient_HPO[];
   getPatient_HPOs!: Sequelize.HasManyGetAssociationsMixin<Patient_HPO>;

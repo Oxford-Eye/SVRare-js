@@ -1,7 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { HPO, HPOId } from './HPO';
-import type { patient, patientId } from './patient';
+import type { Patient, PatientId } from './Patient';
 
 export interface Patient_HPOAttributes {
   id: number;
@@ -23,11 +23,11 @@ export class Patient_HPO extends Model<Patient_HPOAttributes, Patient_HPOCreatio
   getHpo!: Sequelize.BelongsToGetAssociationMixin<HPO>;
   setHpo!: Sequelize.BelongsToSetAssociationMixin<HPO, HPOId>;
   createHpo!: Sequelize.BelongsToCreateAssociationMixin<HPO>;
-  // Patient_HPO belongsTo patient via patient_id
-  patient!: patient;
-  getPatient!: Sequelize.BelongsToGetAssociationMixin<patient>;
-  setPatient!: Sequelize.BelongsToSetAssociationMixin<patient, patientId>;
-  createPatient!: Sequelize.BelongsToCreateAssociationMixin<patient>;
+  // Patient_HPO belongsTo Patient via patient_id
+  patient!: Patient;
+  getPatient!: Sequelize.BelongsToGetAssociationMixin<Patient>;
+  setPatient!: Sequelize.BelongsToSetAssociationMixin<Patient, PatientId>;
+  createPatient!: Sequelize.BelongsToCreateAssociationMixin<Patient>;
 
   static initModel(sequelize: Sequelize.Sequelize): typeof Patient_HPO {
     return Patient_HPO.init({
@@ -49,7 +49,7 @@ export class Patient_HPO extends Model<Patient_HPOAttributes, Patient_HPOCreatio
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'patient',
+        model: 'Patient',
         key: 'id'
       }
     }

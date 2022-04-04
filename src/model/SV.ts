@@ -1,9 +1,9 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
+import type { Patient_SV, Patient_SVId } from './Patient_SV';
+import type { SV_Gene, SV_GeneId } from './SV_Gene';
 import type { SV_cds, SV_cdsId } from './SV_cds';
 import type { SV_exon, SV_exonId } from './SV_exon';
-import type { SV_gene, SV_geneId } from './SV_gene';
-import type { patient_SV, patient_SVId } from './patient_SV';
 
 export interface SVAttributes {
   id: number;
@@ -33,6 +33,30 @@ export class SV extends Model<SVAttributes, SVCreationAttributes> implements SVA
   dbvar_count?: number;
   decipher_freq?: number;
 
+  // SV hasMany Patient_SV via sv_id
+  Patient_SVs!: Patient_SV[];
+  getPatient_SVs!: Sequelize.HasManyGetAssociationsMixin<Patient_SV>;
+  setPatient_SVs!: Sequelize.HasManySetAssociationsMixin<Patient_SV, Patient_SVId>;
+  addPatient_SV!: Sequelize.HasManyAddAssociationMixin<Patient_SV, Patient_SVId>;
+  addPatient_SVs!: Sequelize.HasManyAddAssociationsMixin<Patient_SV, Patient_SVId>;
+  createPatient_SV!: Sequelize.HasManyCreateAssociationMixin<Patient_SV>;
+  removePatient_SV!: Sequelize.HasManyRemoveAssociationMixin<Patient_SV, Patient_SVId>;
+  removePatient_SVs!: Sequelize.HasManyRemoveAssociationsMixin<Patient_SV, Patient_SVId>;
+  hasPatient_SV!: Sequelize.HasManyHasAssociationMixin<Patient_SV, Patient_SVId>;
+  hasPatient_SVs!: Sequelize.HasManyHasAssociationsMixin<Patient_SV, Patient_SVId>;
+  countPatient_SVs!: Sequelize.HasManyCountAssociationsMixin;
+  // SV hasMany SV_Gene via sv_id
+  SV_Genes!: SV_Gene[];
+  getSV_Genes!: Sequelize.HasManyGetAssociationsMixin<SV_Gene>;
+  setSV_Genes!: Sequelize.HasManySetAssociationsMixin<SV_Gene, SV_GeneId>;
+  addSV_Gene!: Sequelize.HasManyAddAssociationMixin<SV_Gene, SV_GeneId>;
+  addSV_Genes!: Sequelize.HasManyAddAssociationsMixin<SV_Gene, SV_GeneId>;
+  createSV_Gene!: Sequelize.HasManyCreateAssociationMixin<SV_Gene>;
+  removeSV_Gene!: Sequelize.HasManyRemoveAssociationMixin<SV_Gene, SV_GeneId>;
+  removeSV_Genes!: Sequelize.HasManyRemoveAssociationsMixin<SV_Gene, SV_GeneId>;
+  hasSV_Gene!: Sequelize.HasManyHasAssociationMixin<SV_Gene, SV_GeneId>;
+  hasSV_Genes!: Sequelize.HasManyHasAssociationsMixin<SV_Gene, SV_GeneId>;
+  countSV_Genes!: Sequelize.HasManyCountAssociationsMixin;
   // SV hasMany SV_cds via sv_id
   SV_cds!: SV_cds[];
   getSV_cds!: Sequelize.HasManyGetAssociationsMixin<SV_cds>;
@@ -57,30 +81,6 @@ export class SV extends Model<SVAttributes, SVCreationAttributes> implements SVA
   hasSV_exon!: Sequelize.HasManyHasAssociationMixin<SV_exon, SV_exonId>;
   hasSV_exons!: Sequelize.HasManyHasAssociationsMixin<SV_exon, SV_exonId>;
   countSV_exons!: Sequelize.HasManyCountAssociationsMixin;
-  // SV hasMany SV_gene via sv_id
-  SV_genes!: SV_gene[];
-  getSV_genes!: Sequelize.HasManyGetAssociationsMixin<SV_gene>;
-  setSV_genes!: Sequelize.HasManySetAssociationsMixin<SV_gene, SV_geneId>;
-  addSV_gene!: Sequelize.HasManyAddAssociationMixin<SV_gene, SV_geneId>;
-  addSV_genes!: Sequelize.HasManyAddAssociationsMixin<SV_gene, SV_geneId>;
-  createSV_gene!: Sequelize.HasManyCreateAssociationMixin<SV_gene>;
-  removeSV_gene!: Sequelize.HasManyRemoveAssociationMixin<SV_gene, SV_geneId>;
-  removeSV_genes!: Sequelize.HasManyRemoveAssociationsMixin<SV_gene, SV_geneId>;
-  hasSV_gene!: Sequelize.HasManyHasAssociationMixin<SV_gene, SV_geneId>;
-  hasSV_genes!: Sequelize.HasManyHasAssociationsMixin<SV_gene, SV_geneId>;
-  countSV_genes!: Sequelize.HasManyCountAssociationsMixin;
-  // SV hasMany patient_SV via sv_id
-  patient_SVs!: patient_SV[];
-  getPatient_SVs!: Sequelize.HasManyGetAssociationsMixin<patient_SV>;
-  setPatient_SVs!: Sequelize.HasManySetAssociationsMixin<patient_SV, patient_SVId>;
-  addPatient_SV!: Sequelize.HasManyAddAssociationMixin<patient_SV, patient_SVId>;
-  addPatient_SVs!: Sequelize.HasManyAddAssociationsMixin<patient_SV, patient_SVId>;
-  createPatient_SV!: Sequelize.HasManyCreateAssociationMixin<patient_SV>;
-  removePatient_SV!: Sequelize.HasManyRemoveAssociationMixin<patient_SV, patient_SVId>;
-  removePatient_SVs!: Sequelize.HasManyRemoveAssociationsMixin<patient_SV, patient_SVId>;
-  hasPatient_SV!: Sequelize.HasManyHasAssociationMixin<patient_SV, patient_SVId>;
-  hasPatient_SVs!: Sequelize.HasManyHasAssociationsMixin<patient_SV, patient_SVId>;
-  countPatient_SVs!: Sequelize.HasManyCountAssociationsMixin;
 
   static initModel(sequelize: Sequelize.Sequelize): typeof SV {
     return SV.init({
@@ -128,33 +128,9 @@ export class SV extends Model<SVAttributes, SVCreationAttributes> implements SVA
     timestamps: false,
     indexes: [
       {
-        name: "ix_SV_start",
-        fields: [
-          { name: "start" },
-        ]
-      },
-      {
-        name: "ix_SV_decipher_freq",
-        fields: [
-          { name: "decipher_freq" },
-        ]
-      },
-      {
         name: "ix_SV_chrom",
         fields: [
           { name: "chrom" },
-        ]
-      },
-      {
-        name: "ix_SV_sv_type",
-        fields: [
-          { name: "sv_type" },
-        ]
-      },
-      {
-        name: "ix_SV_name",
-        fields: [
-          { name: "name" },
         ]
       },
       {
@@ -164,15 +140,39 @@ export class SV extends Model<SVAttributes, SVCreationAttributes> implements SVA
         ]
       },
       {
-        name: "ix_SV_dbvar_count",
+        name: "ix_SV_sv_type",
         fields: [
-          { name: "dbvar_count" },
+          { name: "sv_type" },
         ]
       },
       {
         name: "ix_SV_gnomad_freq",
         fields: [
           { name: "gnomad_freq" },
+        ]
+      },
+      {
+        name: "ix_SV_name",
+        fields: [
+          { name: "name" },
+        ]
+      },
+      {
+        name: "ix_SV_dbvar_count",
+        fields: [
+          { name: "dbvar_count" },
+        ]
+      },
+      {
+        name: "ix_SV_start",
+        fields: [
+          { name: "start" },
+        ]
+      },
+      {
+        name: "ix_SV_decipher_freq",
+        fields: [
+          { name: "decipher_freq" },
         ]
       },
     ]
