@@ -9,7 +9,7 @@ dotenv.config({
 const db = new Sequelize('app', '', '', {
   storage: process.env.DATABASE,
   dialect: 'sqlite',
-  logging: console.log
+  //logging: console.log
 });
 
 export default db;

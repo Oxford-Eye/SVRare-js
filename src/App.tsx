@@ -17,7 +17,7 @@ class App extends React.Component<Object, Object> {
               element={<Families baseUrl={baseUrl} />}
             />
             <Route
-              path="/family/:familyId"
+              path="/patient_sv"
               element={<SVRare baseUrl={baseUrl} />}
             />
           </Routes>

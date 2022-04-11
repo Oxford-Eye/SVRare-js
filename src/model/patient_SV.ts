@@ -102,15 +102,15 @@ export class Patient_SV extends Model<Patient_SVAttributes, Patient_SVCreationAt
     timestamps: false,
     indexes: [
       {
-        name: "ix_Patient_SV_validated_as_real",
-        fields: [
-          { name: "validated_as_real" },
-        ]
-      },
-      {
         name: "ix_Patient_SV_filter",
         fields: [
           { name: "filter" },
+        ]
+      },
+      {
+        name: "ix_Patient_SV_validated_as_real",
+        fields: [
+          { name: "validated_as_real" },
         ]
       },
       {

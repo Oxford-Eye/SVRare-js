@@ -1,0 +1,9 @@
+.gene {
+  border-radius: 3px;
+  background-color: lightgrey;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.hpoGene {
+  color: red;
+}

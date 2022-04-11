@@ -12,6 +12,7 @@ export interface SVAttributes {
   start?: number;
   end?: number;
   sv_type?: string;
+  N_carriers?: number;
   gnomad_freq?: number;
   dbvar_count?: number;
   decipher_freq?: number;
@@ -19,7 +20,7 @@ export interface SVAttributes {
 
 export type SVPk = "id";
 export type SVId = SV[SVPk];
-export type SVOptionalAttributes = "name" | "chrom" | "start" | "end" | "sv_type" | "gnomad_freq" | "dbvar_count" | "decipher_freq";
+export type SVOptionalAttributes = "name" | "chrom" | "start" | "end" | "sv_type" | "N_carriers" | "gnomad_freq" | "dbvar_count" | "decipher_freq";
 export type SVCreationAttributes = Optional<SVAttributes, SVOptionalAttributes>;
 
 export class SV extends Model<SVAttributes, SVCreationAttributes> implements SVAttributes {
@@ -29,6 +30,7 @@ export class SV extends Model<SVAttributes, SVCreationAttributes> implements SVA
   start?: number;
   end?: number;
   sv_type?: string;
+  N_carriers?: number;
   gnomad_freq?: number;
   dbvar_count?: number;
   decipher_freq?: number;
@@ -110,6 +112,10 @@ export class SV extends Model<SVAttributes, SVCreationAttributes> implements SVA
       type: DataTypes.STRING,
       allowNull: true
     },
+    N_carriers: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     gnomad_freq: {
       type: DataTypes.DECIMAL,
       allowNull: true
@@ -128,21 +134,15 @@ export class SV extends Model<SVAttributes, SVCreationAttributes> implements SVA
     timestamps: false,
     indexes: [
       {
-        name: "ix_SV_chrom",
+        name: "ix_SV_name",
         fields: [
-          { name: "chrom" },
+          { name: "name" },
         ]
       },
       {
-        name: "ix_SV_end",
+        name: "ix_SV_N_carriers",
         fields: [
-          { name: "end" },
-        ]
-      },
-      {
-        name: "ix_SV_sv_type",
-        fields: [
-          { name: "sv_type" },
+          { name: "N_carriers" },
         ]
       },
       {
@@ -152,15 +152,21 @@ export class SV extends Model<SVAttributes, SVCreationAttributes> implements SVA
         ]
       },
       {
-        name: "ix_SV_name",
-        fields: [
-          { name: "name" },
-        ]
-      },
-      {
         name: "ix_SV_dbvar_count",
         fields: [
           { name: "dbvar_count" },
+        ]
+      },
+      {
+        name: "ix_SV_decipher_freq",
+        fields: [
+          { name: "decipher_freq" },
+        ]
+      },
+      {
+        name: "ix_SV_chrom",
+        fields: [
+          { name: "chrom" },
         ]
       },
       {
@@ -170,9 +176,15 @@ export class SV extends Model<SVAttributes, SVCreationAttributes> implements SVA
         ]
       },
       {
-        name: "ix_SV_decipher_freq",
+        name: "ix_SV_sv_type",
         fields: [
-          { name: "decipher_freq" },
+          { name: "sv_type" },
+        ]
+      },
+      {
+        name: "ix_SV_end",
+        fields: [
+          { name: "end" },
         ]
       },
     ]

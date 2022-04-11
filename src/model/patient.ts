@@ -109,16 +109,16 @@ export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
     timestamps: false,
     indexes: [
       {
+        name: "ix_Patient_family_id",
+        fields: [
+          { name: "family_id" },
+        ]
+      },
+      {
         name: "ix_Patient_name",
         unique: true,
         fields: [
           { name: "name" },
-        ]
-      },
-      {
-        name: "ix_Patient_family_id",
-        fields: [
-          { name: "family_id" },
         ]
       },
     ]
