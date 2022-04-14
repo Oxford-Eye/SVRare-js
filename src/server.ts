@@ -114,7 +114,6 @@ app.get("/patient_sv", async (req: Request, res: Response) => {
           as: "hpo",
         }]
       })
-      console.log(HPO);
       // Patient_SV
       const PS = await models.Patient_SV.findAll({
         where: {

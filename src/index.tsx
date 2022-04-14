@@ -5,9 +5,8 @@ import './index.css';
 import registerServiceWorker from './registerServiceWorker';
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
+// React.StrictMode causes double-call on components
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <App />
 );
 registerServiceWorker();

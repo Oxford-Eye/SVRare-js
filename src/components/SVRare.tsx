@@ -164,6 +164,7 @@ const SVRare: React.FC<Props> = props => {
                   format: 'bam',
                   url: stateData.data.proband.bam_path,
                   indexURL: stateData.data.proband.bam_path + '.bai',
+                  displayMode: 'SQUISH'
                 }, {
                   name: stateData.data.proband.name,
                   type: 'variant',
