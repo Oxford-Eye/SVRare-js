@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import SVRare from "./components/SVRare";
 import Families from "./components/Families";
+import IgvPage from "./components/Igv";
 //import * as lodash from "lodash";
 
 class App extends React.Component<Object, Object> {
@@ -19,6 +20,10 @@ class App extends React.Component<Object, Object> {
             <Route
               path="/patient_sv"
               element={<SVRare baseUrl={baseUrl} />}
+            />
+            <Route
+              path="/igv"
+              element={<IgvPage />}
             />
           </Routes>
         </div>

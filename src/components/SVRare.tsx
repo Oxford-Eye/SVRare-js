@@ -1,16 +1,34 @@
 import * as React from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useTable, Column, useSortBy } from "react-table";
+import { useTable, Column, useSortBy, Row } from "react-table";
 import CssBaseline from '@material-ui/core/CssBaseline'
 import MaUTable from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
+import Igv, { IgvDivProps } from './Igv';
 import '../styles/SVRare.css'
 //import 'react-table/react-table.css'
 //import '@material/react-text-field/dist/text-field.css';
+
+const IGV_MAX_VIEW = 300000;
+const IGV_BP_PADDING = 500;
+const IGV_SV_PADDING = 0.2;
+
+type Proband = {
+  id: number,
+  name: string,
+  family_id: string,
+  manta_path: string,
+  canvas_path: string,
+  bam_path: string,
+  is_solved: boolean,
+  disease: string,
+  is_proband: boolean,
+  relation_to_proband: string
+}
 
 interface StateData {
   data: SVData,
@@ -21,93 +39,193 @@ interface Props {
 }
 
 interface SVData {
-  proband: any,
+  proband: Proband,
   SV: any[]
 }
-const columns: Column<any>[] = [{
-  Header: 'Chrom',
-  accessor: (d) => d['sv.chrom'],
-}
-  , {
-  Header: 'Start',
-  accessor: (d) => d['sv.start'],
-}
-  , {
-  Header: 'End',
-  accessor: (d) => d['sv.end'],
-},
-{
-  Header: 'Type',
-  accessor: (d) => d['sv.sv_type'],
-},
-{
-  Header: 'Filter',
-  accessor: 'filter',
-},
-{
-  Header: 'Genotype',
-  accessor: 'genotype',
-},
-{
-  Header: 'VCF ID',
-  accessor: 'vcf_id',
-},
-{
-  Header: 'Source',
-  accessor: 'source',
-},
-{
-  Header: 'N_carriers',
-  accessor: (d) => d['sv.N_carriers'],
-},
-{
-  Header: 'gnomAD freq',
-  accessor: (d) => d['sv.gnomad_freq'],
-},
-{
-  Header: 'dbVAR count',
-  accessor: (d) => d['sv.dbvar_count'],
-},
-{
-  Header: 'Decipher freq',
-  accessor: (d) => d['sv.decipher_freq'],
-},
-{
-  Header: 'CDS',
-  accessor: 'cdsDisplay',
-  Cell: ({ row }) => <span dangerouslySetInnerHTML={{ __html: row.original.cdsDisplay }} />
-},
-{
-  Header: 'exons',
-  accessor: 'exonsDisplay',
-  Cell: ({ row }) => <span dangerouslySetInnerHTML={{ __html: row.original.exonsDisplay }} />
-},
-{
-  Header: 'Genes',
-  accessor: 'genesDisplay',
-  Cell: ({ row }) => <span dangerouslySetInnerHTML={{ __html: row.original.genesDisplay }} />
-},
-{
-  id: 'hpoCds',
-  Header: 'CDS overlap HPO genes',
-  accessor: (d) => d.hpoCds.toString(),
-},
-{
-  id: 'hpoExons',
-  Header: 'Exons overlap HPO genes',
-  accessor: (d) => d.hpoExons.toString(),
-},
-{
-  id: 'hpoGenes',
-  Header: 'Genes overlap HPO genes',
-  accessor: (d) => d.hpoGenes.toString(),
-},
-]
+
 const SVRare: React.FC<Props> = props => {
-  const [stateData, setStateData] = React.useState<StateData>({ data: { proband: null, SV: [] }, ready: false })
+  const [stateData, setStateData] = React.useState<StateData>({
+    data: {
+      proband: {
+        id: -1,
+        name: '',
+        family_id: '',
+        manta_path: '',
+        canvas_path: '',
+        bam_path: '',
+        is_solved: false,
+        disease: '',
+        is_proband: false,
+        relation_to_proband: '',
+      }, SV: []
+    }, ready: false
+  })
 
   const [searchParams, _] = useSearchParams();
 
+  // Column
+  const columns: Column<any>[] = React.useMemo(() => {
+    return [{
+      Header: 'Chrom',
+      accessor: (d) => d['sv.chrom'],
+    }
+      , {
+      id: 'start',
+      Header: 'Start',
+      accessor: (d) => d['sv.start'],
+    }
+      , {
+      Header: 'End',
+      accessor: (d) => d['sv.end'],
+    },
+    {
+      Header: 'Type',
+      accessor: (d) => d['sv.sv_type'],
+    },
+    {
+      Header: 'Filter',
+      accessor: 'filter',
+    },
+    {
+      Header: 'Genotype',
+      accessor: 'genotype',
+    },
+    {
+      Header: 'VCF ID',
+      accessor: 'vcf_id',
+    },
+    {
+      Header: 'Source',
+      accessor: 'source',
+    },
+    {
+      Header: 'N_carriers',
+      accessor: (d) => d['sv.N_carriers'],
+    },
+    {
+      Header: 'gnomAD freq',
+      accessor: (d) => d['sv.gnomad_freq'],
+    },
+    {
+      Header: 'dbVAR count',
+      accessor: (d) => d['sv.dbvar_count'],
+    },
+    {
+      Header: 'Decipher freq',
+      accessor: (d) => d['sv.decipher_freq'],
+    },
+    {
+      Header: 'CDS',
+      accessor: 'cdsDisplay',
+      Cell: ({ row }) => <span dangerouslySetInnerHTML={{ __html: row.original.cdsDisplay }} />
+    },
+    {
+      Header: 'exons',
+      accessor: 'exonsDisplay',
+      Cell: ({ row }) => <span dangerouslySetInnerHTML={{ __html: row.original.exonsDisplay }} />
+    },
+    {
+      Header: 'Genes',
+      accessor: 'genesDisplay',
+      Cell: ({ row }) => <span dangerouslySetInnerHTML={{ __html: row.original.genesDisplay }} />
+    },
+    {
+      id: 'hpoCds',
+      Header: 'CDS overlap HPO genes',
+      accessor: (d) => d.hpoCds.toString(),
+    },
+    {
+      id: 'hpoExons',
+      Header: 'Exons overlap HPO genes',
+      accessor: (d) => d.hpoExons.toString(),
+    },
+    {
+      id: 'hpoGenes',
+      Header: 'Genes overlap HPO genes',
+      accessor: (d) => d.hpoGenes.toString(),
+    },
+    {
+      id: 'igv',
+      Header: 'IGV',
+      Cell: ({ row }) => {
+        const size = row.original['sv.end'] - row.original['sv.start'];
+        let browsers: IgvDivProps[] = [];
+        if (size > IGV_MAX_VIEW) {
+          // split breaking points
+          browsers = [
+            {
+              divId: 0,
+              igvOptions: {
+                genome: 'hg19',
+                locus: `${row.original['sv.chrom']}:${Math.round(row.original['sv.start'] - IGV_BP_PADDING)}-${Math.round(row.original['sv.start'] + IGV_BP_PADDING)}`,
+                tracks: [{
+                  name: stateData.data.proband.name,
+                  type: 'alignment',
+                  format: 'bam',
+                  url: stateData.data.proband.bam_path,
+                  indexURL: stateData.data.proband.bam_path + '.bai',
+                }, {
+                  name: stateData.data.proband.name,
+                  type: 'variant',
+                  format: 'vcf',
+                  url: stateData.data.proband.manta_path,
+                  indexURL: stateData.data.proband.manta_path + '.tbi',
+                }
+                ],
+              }
+            }, {
+              divId: 1,
+              igvOptions: {
+                genome: 'hg19',
+                locus: `${row.original['sv.chrom']}:${Math.round(row.original['sv.end'] - IGV_BP_PADDING)}-${Math.round(row.original['sv.end'] + IGV_BP_PADDING)}`,
+                tracks: [{
+                  name: stateData.data.proband.name,
+                  type: 'alignment',
+                  format: 'bam',
+                  url: stateData.data.proband.bam_path,
+                  indexURL: stateData.data.proband.bam_path + '.bai',
+                }, {
+                  name: stateData.data.proband.name,
+                  type: 'variant',
+                  format: 'vcf',
+                  url: stateData.data.proband.manta_path,
+                  indexURL: stateData.data.proband.manta_path + '.tbi',
+                }
+                ],
+              }
+            }
+          ]
+        } else {
+          browsers = [
+            {
+              divId: 0,
+              igvOptions: {
+                genome: 'hg19',
+                locus: `${row.original['sv.chrom']}:${Math.round(row.original['sv.start'] - IGV_SV_PADDING * size)}-${Math.round(row.original['sv.end'] + IGV_SV_PADDING * size)}`,
+                tracks: [{
+                  name: stateData.data.proband.name,
+                  type: 'alignment',
+                  format: 'bam',
+                  url: stateData.data.proband.bam_path,
+                  indexURL: stateData.data.proband.bam_path + '.bai',
+                }, {
+                  name: stateData.data.proband.name,
+                  type: 'variant',
+                  format: 'vcf',
+                  url: stateData.data.proband.manta_path,
+                  indexURL: stateData.data.proband.manta_path + '.tbi',
+                }
+                ],
+              }
+            }
+          ]
+        }
+
+        return <Link to={`/igv`} state={{ browsers }}>Link</Link>
+      }
+    }
+    ]
+  }, [stateData]);
 
   const getData = React.useCallback(async () => {
     // heavy lifting bit

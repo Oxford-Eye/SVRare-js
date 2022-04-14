@@ -61,7 +61,7 @@ class Families extends React.Component<Props, State> {
             // set state
             return {
               familyId: s.familyId,
-              link: `/family?familyId=${s.familyId}&pageSize=30&page=0`,
+              link: `/patient_sv?familyId=${s.familyId}&pageSize=30&page=0`,
               show: true
             };
           })

@@ -17,10 +17,14 @@ const app = express();
 const port = 9000;
 const corsOptions = {
   origin: "*",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: ['Content-Range', 'X-Content-Range', 'range'],
   optionSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
+// 
+app.use(express.static('pchuckle_data'))
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -30,6 +34,7 @@ const sess = {
   saveUninitialized: false
 };
 app.use(session(sess));
+
 
 
 interface SVGene { 'sv_id': number, 'gene_id': number, 'symbol': string }
@@ -80,7 +85,7 @@ app.get("/patient_sv", async (req: Request, res: Response) => {
     if (N_carriers_max === undefined) N_carriers_max = 10;
 
     // Firstly find the proband of the family
-    const proband = await models.Patient.findOne({
+    const proband: any = await models.Patient.findOne({
       where: {
         family_id: familyId,
         is_proband: true
@@ -92,6 +97,13 @@ app.get("/patient_sv", async (req: Request, res: Response) => {
         error: `family or proband doesn't exist: family_id:${familyId}`
       })
     } else {
+      // repair path to bam/vcfs. need to address this issue
+      // TODO:
+
+      ['bam_path', 'canvas_path', 'manta_path'].forEach((property: string) => {
+        proband[property] = proband[property].replace('/home/jingyu/pchuckle_data/', 'http://localhost:9000/')
+      })
+
       // HPO
       const HPO = await models.Patient_HPO.findAll({
         where: { patient_id: proband.id },
