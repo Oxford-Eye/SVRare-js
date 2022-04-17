@@ -19,13 +19,14 @@
     "react-table": "^7.7.0",
     "sequelize": "^6.17.0",
     "sequelize-auto": "^0.8.8",
+    "serve": "^13.0.2",
     "sqlite3": "mapbox/node-sqlite3#593c9d498be2510d286349134537e3bf89401c4a",
     "styled-components": "^5.3.5"
   },
   "scripts": {
     "server-dev": "ts-node-dev --respawn src/server.ts",
-    "start": "concurrently --kill-others \"react-scripts-ts start\" \"ts-node-dev --respawn src/server.ts\"",
-    "build": "rm -rf build/ && react-scripts-ts build && concurrently --kill-others \"serve -s build\" \"node server/server.js\"",
+    "start": "ENV_FILE=.env.local && concurrently --kill-others \"react-scripts-ts start\" \"ts-node-dev --respawn src/server.ts\"",
+    "build": "ENV_FILE=.env && rm -rf build/ && react-scripts-ts build && tsc --project tsconfig.server.json && concurrently --kill-others \"serve -s build\" \"node build/server.js\"",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },
@@ -41,7 +42,6 @@
     "@types/react-table": "^7.7.10",
     "@types/styled-components": "^5.1.25",
     "concurrently": "^7.1.0",
-    "nodemon": "^2.0.15",
     "react-scripts-ts": "^3.1.0",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.6.3"

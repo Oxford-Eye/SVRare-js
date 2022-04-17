@@ -94,7 +94,7 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. The react table ts file (src/types/react-table-config.d.ts) won't pass ts check (https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/53723)*/
   },
   "include": [
-    "src/**/*"
+    "src/server.ts"
   ],
   "exclude": [
     //"src/types/*.ts",

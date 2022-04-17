@@ -164,7 +164,7 @@ const SVRare: React.FC<Props> = props => {
                   format: 'bam',
                   url: stateData.data.proband.bam_path,
                   indexURL: stateData.data.proband.bam_path + '.bai',
-                  displayMode: 'SQUISH'
+                  displayMode: 'SQUISHED',
                 }, {
                   name: stateData.data.proband.name,
                   type: 'variant',
@@ -185,6 +185,7 @@ const SVRare: React.FC<Props> = props => {
                   format: 'bam',
                   url: stateData.data.proband.bam_path,
                   indexURL: stateData.data.proband.bam_path + '.bai',
+                  displayMode: 'SQUISHED',
                 }, {
                   name: stateData.data.proband.name,
                   type: 'variant',
@@ -209,6 +210,8 @@ const SVRare: React.FC<Props> = props => {
                   format: 'bam',
                   url: stateData.data.proband.bam_path,
                   indexURL: stateData.data.proband.bam_path + '.bai',
+                  displayMode: 'SQUISHED',
+                  visibilityWindow: IGV_MAX_VIEW * (1 + 2 * IGV_SV_PADDING),
                 }, {
                   name: stateData.data.proband.name,
                   type: 'variant',
@@ -222,7 +225,7 @@ const SVRare: React.FC<Props> = props => {
           ]
         }
 
-        return <Link to={`/igv`} state={{ browsers }}>Link</Link>
+        return <Link to={`/igv`} state={{ browsers }} >Link</Link>
       }
     }
     ]
@@ -233,7 +236,7 @@ const SVRare: React.FC<Props> = props => {
     const familyId = searchParams.get('familyId')
     try {
       const svUrl = (props.baseUrl ? props.baseUrl : "") +
-        "/patient_sv?familyId=" + familyId + "&page=0&pageSize=30";
+        "/patient_sv?familyId=" + familyId;
       const patientHpoUrl = (props.baseUrl ? props.baseUrl : "") +
         "/patient_hpo?familyId=" + familyId;
       const hpoGeneUrlBase = (props.baseUrl ? props.baseUrl : "") +
@@ -257,7 +260,7 @@ const SVRare: React.FC<Props> = props => {
       data.data.SV.forEach((record: any) => {
         ['genes', 'cds', 'exons'].forEach(feature => {
           record[feature].sort((a: string, b: string) => {
-            hpoSymbols.includes(b) - hpoSymbols.includes(a)
+            return hpoSymbols.includes(b) - hpoSymbols.includes(a)
           })
           if (record[feature].length > max_N) {
             record[feature] = record[feature].slice(0, max_N)
@@ -277,21 +280,17 @@ const SVRare: React.FC<Props> = props => {
 
       // sort all records based on N_carriers and hpoCds / hpoExons /hpoGenes
       data.data.SV.sort((a: any, b: any) => {
-        if (a['sv.N_carriers'] < b['sv.N_carriers']) return -1
-        if (a['sv.N_carriers'] > b['sv.N_carriers']) return 1
+        //if (a['sv.N_carriers'] < b['sv.N_carriers']) return -1
+        //if (a['sv.N_carriers'] > b['sv.N_carriers']) return 1
         const A = a.hpoCds * 5 +
           a.hpoExons * 2 +
-          a.hpoGenes
+          a.hpoGenes - a['sv.N_carriers']
         const B = b.hpoCds * 5 +
           b.hpoExons * 2 +
-          b.hpoGenes
+          b.hpoGenes - b['sv.N_carriers']
         return B - A
       })
-      data.data.SV.forEach((d: any) => {
-        if (d.hpoCds) {
-          console.log(d)
-        }
-      })
+
       setStateData({ data: data.data, ready: true });
     } catch (err) {
       console.error(err);
@@ -365,138 +364,3 @@ const SVRare: React.FC<Props> = props => {
   )
 }
 export default SVRare;
-/*
-export default class SVRare extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      data: [],
-      loading: true
-    }
-  }
-  async getData() {
-    // https://stackoverflow.com/questions/35352638/how-to-get-parameter-value-from-query-string
-    const [searchParams, _] = useSearchParams();
-    const url = (this.props.baseUrl ? this.props.baseUrl : "") +
-      "/family/" +
-      searchParams.get('familyId');
-    const res = await axios.get(url)
-    this.setState({ loading: false, data: res.data })
-  }
-  componentDidMount() {
-    this.getData()
-  }
-  render() {
-    const columns = [{
-      Header: 'Chrom',
-      accessor: 'sv.chrom',
-    }
-      , {
-      Header: 'Start',
-      accessor: 'sv.start',
-    }
-      , {
-      Header: 'End',
-      accessor: 'sv.end',
-    }
-      , {
-      Header: 'Type',
-      accessor: 'sv.sv_type',
-    },
-    {
-      Header: 'Genotype',
-      accessor: 'genotype',
-    },
-    {
-      Header: 'VCF ID',
-      accessor: 'vcf_id',
-    },
-    {
-      Header: 'Source',
-      accessor: 'source',
-    },
-    {
-      Header: 'N_carriers',
-      accessor: 'N_carriers',
-    },
-    {
-      Header: 'gnomAD freq',
-      accessor: 'gnomad_freq',
-    },
-    {
-      Header: 'dbVAR count',
-      accessor: 'dbvar_count',
-    },
-    {
-      Header: 'Decipher freq',
-      accessor: 'decipher_freq',
-    },
-    {
-      Header: 'Genes',
-      accessor: 'genes',
-    },
-    {
-      Header: 'exons',
-      accessor: 'exons',
-    },
-    {
-      Header: 'CDS',
-      accessor: 'cds',
-    },
-    ]
-    const {
-      getTableProps,
-      getTableBodyProps,
-      headerGroups,
-      rows,
-      prepareRow,
-    } = useTable({ columns, data: this.state.data });
-    return (
-      <table {...getTableProps()} style={{ border: 'solid 1px blue' }}>
-        <thead>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <th
-                  {...column.getHeaderProps()}
-                  style={{
-                    borderBottom: 'solid 3px red',
-                    background: 'aliceblue',
-                    color: 'black',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  {column.render('Header')}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map(row => {
-            prepareRow(row)
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map(cell => {
-                  return (
-                    <td
-                      {...cell.getCellProps()}
-                      style={{
-                        padding: '10px',
-                        border: 'solid 1px gray',
-                        background: 'papayawhip',
-                      }}
-                    >
-                      {cell.render('Cell')}
-                    </td>
-                  )
-                })}
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    )
-  }
-}
-*/

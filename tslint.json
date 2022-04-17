@@ -1,6 +1,21 @@
 {
   "extends": [],
   "defaultSeverity": "warning",
+  "rules": {
+    "no-internal-module": false,
+    "typedef-whitespace": false,
+    "no-console": false,
+    "no-reference": false,
+    "no-namespace": false,
+    "max-line-length": [
+      true,
+      140
+    ],
+    "no-bitwise": false,
+    "align": true,
+    "arrow-return-shorthand": true,
+    "no-magic-numbers": false
+  },
   "linterOptions": {
     "exclude": [
       "config/**/*.js",
