@@ -1,6 +1,7 @@
 {
   "name": "svrare-js",
   "version": "0.1.0",
+  "license": "MIT",
   "private": false,
   "dependencies": {
     "@material-ui/core": "^4.12.3",
@@ -25,8 +26,8 @@
   },
   "scripts": {
     "server-dev": "ts-node-dev --respawn src/server.ts",
-    "start": "ENV_FILE=.env.local && concurrently --kill-others \"react-scripts-ts start\" \"ts-node-dev --respawn src/server.ts\"",
-    "build": "ENV_FILE=.env && rm -rf build/ && react-scripts-ts build && tsc --project tsconfig.server.json && concurrently --kill-others \"serve -s build\" \"node build/server.js\"",
+    "start": "ENV_FILE=.env.local concurrently --kill-others \"react-scripts-ts start\" \"ts-node-dev --respawn src/server.ts\"",
+    "build": "ENV_FILE=.env rm -rf build/ && react-scripts-ts build && tsc --project tsconfig.server.json && concurrently --kill-others \"serve -s build\" \"node build/server.js\"",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },
