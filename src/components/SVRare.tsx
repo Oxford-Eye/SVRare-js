@@ -8,6 +8,8 @@ import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
+import { useAtom } from 'jotai'
+import { igvData } from '../dataStore/igv';
 import Igv, { IgvDivProps } from './Igv';
 import '../styles/SVRare.css'
 //import 'react-table/react-table.css'
@@ -225,7 +227,8 @@ const SVRare: React.FC<Props> = props => {
           ]
         }
 
-        return <Link to={`/igv`} state={{ browsers }} >Link</Link>
+        const [_, igvDataSetter] = useAtom(igvData);
+        return <Link to={`/igv`} onClick={() => igvDataSetter(browsers)} target="_blank">Link</Link>
       }
     }
     ]

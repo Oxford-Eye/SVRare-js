@@ -1,7 +1,9 @@
 
-import React, { Component } from 'react';
+import React from 'react';
 import { useLocation } from 'react-router-dom';
 import igv from 'igv';
+import { useAtom } from 'jotai';
+import { igvData } from '../dataStore/igv'
 //import { useSearchParams } from 'react-router-dom';
 
 let igvStyle = {
@@ -35,8 +37,7 @@ type IgvPageProps = {
 
 
 const IgvPage: React.FC = () => {
-  const location = useLocation();
-  const { browsers } = location.state as IgvPageProps;
+  const [browsers] = useAtom(igvData);
   console.log(browsers[0])
   return (
     <>

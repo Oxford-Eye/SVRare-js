@@ -14,6 +14,7 @@
     "express": "^4.17.3",
     "express-session": "^1.17.2",
     "igv": "^2.12.2",
+    "jotai": "^1.6.6",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.3.0",
