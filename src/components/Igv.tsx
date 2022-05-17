@@ -1,10 +1,8 @@
 
 import React from 'react';
-import { useLocation } from 'react-router-dom';
 import igv from 'igv';
 import { useAtom } from 'jotai';
 import { igvData } from '../dataStore/igv'
-//import { useSearchParams } from 'react-router-dom';
 
 let igvStyle = {
   paddingTop: '10px',

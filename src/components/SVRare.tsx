@@ -11,6 +11,7 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import { useAtom } from 'jotai'
 import { igvData } from '../dataStore/igv';
+import Carrier from './Carrier'
 import Igv, { IgvDivProps } from './Igv';
 import '../styles/SVRare.css'
 //import 'react-table/react-table.css'
@@ -65,7 +66,7 @@ const SVRare: React.FC<Props> = props => {
   })
 
   const [searchParams, _] = useSearchParams();
-
+  const familyId = searchParams.get('familyId')!
   // Column
   const columns: Column<any>[] = React.useMemo(() => {
     return [{
@@ -104,6 +105,23 @@ const SVRare: React.FC<Props> = props => {
     {
       Header: 'N_carriers',
       accessor: (d) => d['sv.N_carriers'],
+    },
+    {
+      Header: 'carriers',
+      //accessor: 'carriers',
+      Cell: ({ row }) => {
+        if (row.original['sv.N_carriers'] <= 1) {
+          return ''
+        }
+        return (<Carrier
+          baseUrl={props.baseUrl}
+          familyId={familyId}
+          chrom={row.original['sv.chrom']}
+          start={row.original['sv.start']}
+          end={row.original['sv.end']}
+          svType={row.original['sv.sv_type']}
+        />)
+      }
     },
     {
       Header: 'gnomAD freq',
@@ -237,7 +255,7 @@ const SVRare: React.FC<Props> = props => {
 
   const getData = React.useCallback(async () => {
     // heavy lifting bit
-    const familyId = searchParams.get('familyId')
+
     try {
       const svUrl = (props.baseUrl ? props.baseUrl : "") +
         "/patient_sv?familyId=" + familyId;
@@ -261,7 +279,8 @@ const SVRare: React.FC<Props> = props => {
       // sort genes against hpoGenes
       const hpoSymbols = hpoGenes.map((d: any) => d['gene.symbol']);
       const max_N = 5;
-      data.data.SV.forEach((record: any) => {
+      data.data.SV.forEach(async (record: any) => {
+        // genes, cds, exons
         ['genes', 'cds', 'exons'].forEach(feature => {
           record[feature].sort((a: string, b: string) => {
             return hpoSymbols.includes(b) - hpoSymbols.includes(a)
@@ -280,6 +299,7 @@ const SVRare: React.FC<Props> = props => {
         record.hpoGenes = record.genes.some((gene: any) => hpoSymbols.includes(gene))
         record.hpoExons = record.exons.some((gene: any) => hpoSymbols.includes(gene))
         record.hpoCds = record.cds.some((gene: any) => hpoSymbols.includes(gene))
+
       })
 
       // sort all records based on N_carriers and hpoCds / hpoExons /hpoGenes
@@ -302,7 +322,6 @@ const SVRare: React.FC<Props> = props => {
 
   }, []);
   React.useEffect(() => {
-    console.log(stateData.ready);
     let isLoading = true;
 
     getData();

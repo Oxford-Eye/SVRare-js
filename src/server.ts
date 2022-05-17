@@ -8,11 +8,16 @@ import { initModels } from './model/init-models';
 import { QueryTypes, Op } from 'sequelize';
 import dotenv from 'dotenv';
 import path from 'path';
+import { SVCarrier } from './types/SVRare'
+import * as patientDict from './localPatientDict.json'
+import internal from 'stream';
 
 const ENV_FILE = process.env.ENV_FILE || '.env'
 dotenv.config({
   path: path.resolve(process.cwd(), ENV_FILE)
 });
+
+const SV_DISTANCE = process.env.SV_DISTANCE !== undefined ? process.env.SV_DISTANCE as unknown as number : 0.5
 
 db.sync().then(() => {
   console.log('connet to db');
@@ -259,6 +264,67 @@ app.get('/hpo_genes', async (req: Request, res: Response) => {
       hpoGenes
     }
   })
+})
+
+app.get('/get_carriers', async (req: Request, res: Response) => {
+  const chrom = req.query.chrom as string;
+  const start = req.query.start as unknown as number;
+  const end = req.query.end as unknown as number;
+  const size = end - start;
+  const svType = req.query.svType as string;
+  const familyId = req.query.familyId as string;
+  // get family members
+  const families = await models.Patient.findAll({
+    where: { family_id: familyId },
+    raw: true,
+  })
+  // get SVs in close range
+  let sql = `
+    SELECT * FROM sv 
+      JOIN Patient_SV ON sv.id = Patient_SV.sv_id 
+      JOIN Patient on Patient.id = Patient_SV.patient_id
+    WHERE 
+      SV.chrom = "${chrom}"
+    AND
+      SV.sv_type = "${svType}"
+    AND
+      SV.end >= ${end} - ${size} * ${SV_DISTANCE}
+    AND
+      SV.end <= ${end} + ${size} * (1 / (1 - ${SV_DISTANCE}) - 1)
+    AND
+      SV.start <= ${start} + ${size}
+    AND
+      SV.start >= ${start} - ${size} * (1 / (1 - ${SV_DISTANCE}) - 1)
+  `;
+  const query: SVCarrier[] = await db.query(sql, { type: QueryTypes.SELECT });
+  // get SVs within distance cutoff
+  const uniqueCarrierSet: string[] = [];
+  const carriers = query.map(record => {
+    let similarity: number;
+    const denominator = Math.max(record.end, end) - Math.min(record.start, start);
+    if (denominator === 0) {
+      similarity = 1
+    } else {
+      similarity = (Math.min(record.end, end) - Math.max(record.start, start)) / denominator;
+    }
+    return {
+      ...record,
+      similarity
+    }
+  }).sort((a, b) => a.similarity >= b.similarity ? -1 : 1)
+    .filter(record => {
+      // skip this proband
+      if (record.family_id === familyId && record.is_proband) return false
+      // skip repetitve samples
+      if (uniqueCarrierSet.indexOf(record.name) !== -1) return false
+      uniqueCarrierSet.push(record.name)
+      return record.similarity >= 1 - SV_DISTANCE ? true : false
+    });
+  res.json({
+    status: 500,
+    data: carriers
+  })
+
 })
 
 app.get('/test', async (_, res: Response) => {
