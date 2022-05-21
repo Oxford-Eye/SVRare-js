@@ -10,7 +10,6 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { SVCarrier } from './types/SVRare'
 import * as patientDict from './localPatientDict.json'
-import internal from 'stream';
 
 const ENV_FILE = process.env.ENV_FILE || '.env'
 dotenv.config({
