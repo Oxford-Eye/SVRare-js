@@ -27,7 +27,7 @@ const IGV_MAX_VIEW = 300000;
 const IGV_BP_PADDING = 500;
 const IGV_SV_PADDING = 0.2;
 
-type Proband = {
+type Patient = {
   id: number,
   name: string,
   family_id: string,
@@ -49,7 +49,7 @@ interface Props {
 }
 
 interface SVData {
-  proband: Proband,
+  proband: Patient,
   SV: any[]
 }
 
@@ -315,13 +315,14 @@ const SVRare: React.FC<Props> = props => {
         const A = a.hpoCds * 5 +
           a.hpoExons * 4 +
           a.hpoGenes * 3 +
-          a.cds.length * 2 +
-          a.exons.length - a['sv.N_carriers']
+          (!!a.cds.length as unknown as number) * 2 +
+          (!!a.exons.length as unknown as number) - a['sv.N_carriers']
+
         const B = b.hpoCds * 5 +
           b.hpoExons * 4 +
           b.hpoGenes * 3 +
-          b.cds.length * 2 +
-          b.exons.length - b['sv.N_carriers']
+          (!!b.cds.length as unknown as number) * 2 +
+          (!!b.exons.length as unknown as number) - b['sv.N_carriers']
         return B - A
       })
 
