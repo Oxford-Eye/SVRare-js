@@ -36,7 +36,6 @@ type IgvPageProps = {
 
 const IgvPage: React.FC = () => {
   const [browsers] = useAtom(igvData);
-  console.log(browsers[0])
   return (
     <>
       {browsers.map((browser) => {

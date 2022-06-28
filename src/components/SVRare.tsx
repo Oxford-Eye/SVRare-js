@@ -12,11 +12,17 @@ import TableRow from '@material-ui/core/TableRow'
 import { useAtom } from 'jotai'
 import { igvData } from '../dataStore/igv';
 import Carrier from './Carrier'
+import path from 'path';
+import dotenv from 'dotenv';
 import Igv, { IgvDivProps } from './Igv';
 import '../styles/SVRare.css'
 //import 'react-table/react-table.css'
 //import '@material/react-text-field/dist/text-field.css';
 
+const ENV_FILE = process.env.ENV_FILE || '.env'
+dotenv.config({
+  path: path.resolve(process.cwd(), ENV_FILE)
+});
 const IGV_MAX_VIEW = 300000;
 const IGV_BP_PADDING = 500;
 const IGV_SV_PADDING = 0.2;
@@ -177,7 +183,7 @@ const SVRare: React.FC<Props> = props => {
             {
               divId: 0,
               igvOptions: {
-                genome: 'hg19',
+                genome: process.env.REACT_APP_GENOME_BUILD!,
                 locus: `${row.original['sv.chrom']}:${Math.round(row.original['sv.start'] - IGV_BP_PADDING)}-${Math.round(row.original['sv.start'] + IGV_BP_PADDING)}`,
                 tracks: [{
                   name: stateData.data.proband.name,
@@ -198,7 +204,7 @@ const SVRare: React.FC<Props> = props => {
             }, {
               divId: 1,
               igvOptions: {
-                genome: 'hg19',
+                genome: process.env.REACT_APP_GENOME_BUILD!,
                 locus: `${row.original['sv.chrom']}:${Math.round(row.original['sv.end'] - IGV_BP_PADDING)}-${Math.round(row.original['sv.end'] + IGV_BP_PADDING)}`,
                 tracks: [{
                   name: stateData.data.proband.name,
@@ -223,7 +229,7 @@ const SVRare: React.FC<Props> = props => {
             {
               divId: 0,
               igvOptions: {
-                genome: 'hg19',
+                genome: process.env.REACT_APP_GENOME_BUILD!,
                 locus: `${row.original['sv.chrom']}:${Math.round(row.original['sv.start'] - IGV_SV_PADDING * size)}-${Math.round(row.original['sv.end'] + IGV_SV_PADDING * size)}`,
                 tracks: [{
                   name: stateData.data.proband.name,
@@ -307,11 +313,15 @@ const SVRare: React.FC<Props> = props => {
         //if (a['sv.N_carriers'] < b['sv.N_carriers']) return -1
         //if (a['sv.N_carriers'] > b['sv.N_carriers']) return 1
         const A = a.hpoCds * 5 +
-          a.hpoExons * 2 +
-          a.hpoGenes - a['sv.N_carriers']
+          a.hpoExons * 4 +
+          a.hpoGenes * 3 +
+          a.cds.length * 2 +
+          a.exons.length - a['sv.N_carriers']
         const B = b.hpoCds * 5 +
-          b.hpoExons * 2 +
-          b.hpoGenes - b['sv.N_carriers']
+          b.hpoExons * 4 +
+          b.hpoGenes * 3 +
+          b.cds.length * 2 +
+          b.exons.length - b['sv.N_carriers']
         return B - A
       })
 
@@ -343,6 +353,7 @@ const SVRare: React.FC<Props> = props => {
     <div>
       {!stateData.ready ? <Loading loading={!stateData.ready} /> :
         <>
+          <p>Disease: {stateData.data.proband.disease}</p>
           <CssBaseline />
           <MaUTable {...getTableProps()}>
             <TableHead>

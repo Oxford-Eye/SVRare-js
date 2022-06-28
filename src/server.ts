@@ -1,5 +1,5 @@
 // sqlite3's node-gyp relies on python2, not compatible with python3. so relies on the un-released-yet commit
-import express, { Request, Response } from 'express';
+import express, { Request, response, Response } from 'express';
 import bodyParser from 'body-parser';
 import session from 'express-session';
 import cors from 'cors';
@@ -8,8 +8,9 @@ import { initModels } from './model/init-models';
 import { QueryTypes, Op } from 'sequelize';
 import dotenv from 'dotenv';
 import path from 'path';
-import { SVCarrier } from './types/SVRare'
-import * as patientDict from './localPatientDict.json'
+import { SVCarrier } from './types/SVRare';
+import fs from 'fs';
+import * as patientDict from './localPatientDict.json';
 
 const ENV_FILE = process.env.ENV_FILE || '.env'
 dotenv.config({
@@ -69,7 +70,7 @@ const ensemblId2symbol = async (data: any[]): Promise<SVGene[]> => {
   })
 }
 
-app.get("/", async (_, res: Response) => {
+app.get("/families", async (_, res: Response) => {
   // type for the distinct family result
   type Family = { 'DISTINCT': string };
 
@@ -324,6 +325,14 @@ app.get('/get_carriers', async (req: Request, res: Response) => {
     data: carriers
   })
 
+})
+
+app.get('/get_geneLists', (_, res: Response) => {
+  const geneLists = fs.readdirSync('./public/knownGenes');
+  res.json({
+    status: 500,
+    data: geneLists
+  })
 })
 
 app.get('/test', async (_, res: Response) => {

@@ -46,7 +46,7 @@ class Families extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    const url = this.props.baseUrl ? this.props.baseUrl : "";
+    const url = (this.props.baseUrl ? this.props.baseUrl : "") + '/families';
     axios.get(url).then(res => {
       this.setState({
         families: res.data.data
