@@ -1,4 +1,5 @@
 import * as React from 'react';
+import 'jquery';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';

@@ -14,7 +14,10 @@ import { igvData } from '../dataStore/igv';
 import Carrier from './Carrier'
 import path from 'path';
 import dotenv from 'dotenv';
-import Igv, { IgvDivProps } from './Igv';
+import { IgvDivProps } from './Igv';
+import { PedigreeMember } from '../types/SVRare';
+import * as pedigreejs from 'pedigreejs';
+import '../../node_modules/pedigreejs/build/pedigreejs.v2.1.0-rc7.css'
 import '../styles/SVRare.css'
 //import 'react-table/react-table.css'
 //import '@material/react-text-field/dist/text-field.css';
@@ -50,6 +53,8 @@ interface Props {
 
 interface SVData {
   proband: Patient,
+  pedigree: PedigreeMember[],
+  family: any[],
   SV: any[]
 }
 
@@ -67,7 +72,10 @@ const SVRare: React.FC<Props> = props => {
         disease: '',
         is_proband: false,
         relation_to_proband: '',
-      }, SV: []
+      },
+      pedigree: [],
+      family: [],
+      SV: []
     }, ready: false
   })
 
@@ -278,10 +286,85 @@ const SVRare: React.FC<Props> = props => {
       const hpoGenesRes = await axios.get(hpoGeneUrl);
       const { hpoGenes } = hpoGenesRes.data.data;
 
+      //pedigree
+      /*
+      If REACT_APP_PEDIGREE_PATH is given, use it to load pedigree.
+      If not, display basic info
+      */
+      let pedigree: PedigreeMember[] = [];
+      const pedigreeUrl = (props.baseUrl ? props.baseUrl : "") +
+        "/pedigree?familyId=" + familyId;
+      pedigree = (await axios.get(pedigreeUrl)).data.data;
+      console.log(pedigree);
+      const peddigree = [
+        {
+          name: 'I_3',
+          display_name: 'I_3',
+          sex: 'M',
+          top_level: true
+        },
+        {
+          name: 'I_4',
+          display_name: 'I_4',
+          sex: 'F',
+          top_level: true
+        },
+        {
+          name: '8196_NotSeq',
+          display_name: '8196_NotSeq',
+          sex: 'M',
+          noparents: true,
+          father: 'I_3',
+          mother: 'I_4'
+        },
+        {
+          name: '8197_NotSeq',
+          display_name: '8197_NotSeq',
+          sex: 'F',
+          father: 'I_3',
+          mother: 'I_4'
+        },
+        {
+          name: '8194_NotSeq',
+          display_name: '8194_NotSeq',
+          sex: 'M',
+          noparents: true,
+          father: 'I_3',
+          mother: 'I_4'
+        },
+        {
+          name: '8195_NotSeq',
+          display_name: '8195_NotSeq',
+          sex: 'F',
+          father: 'I_3',
+          mother: 'I_4'
+        },
+        {
+          name: 'G168387X',
+          display_name: 'G168387X',
+          sex: 'M',
+          proband: true,
+          father: '8194_NotSeq',
+          mother: '8195_NotSeq',
+          disease: 'Fine-Lubinsky Syndrome',
+        },
+        {
+          name: 'G168386Y',
+          display_name: 'G168386Y',
+          sex: 'M',
+          father: '8196_NotSeq',
+          mother: '8197_NotSeq',
+          disease: 'Fine-Lubinsky Syndrome',
+        }
+      ]
+      const familyUrl = (props.baseUrl ? props.baseUrl : "") +
+        "/family?familyId=" + familyId;
+      const family = await axios.get(familyUrl);
       // SVs
 
       const { data } = await axios.get(svUrl);
-
+      data.data.family = family;
+      data.data.pedigree = pedigree;
       // sort genes against hpoGenes
       const hpoSymbols = hpoGenes.map((d: any) => d['gene.symbol']);
       const max_N = 5;
@@ -325,7 +408,31 @@ const SVRare: React.FC<Props> = props => {
           (!!b.exons.length as unknown as number) - b['sv.N_carriers']
         return B - A
       })
-
+      if (data.data.pedigree.length > 0) {
+        const options = {
+          "targetDiv": "pedigree",
+          "width": 829.3333333333334,
+          "height": 500,
+          "symbol_size": 35,
+          "edit": false,
+          "labels": [
+            "disease",
+          ],
+          "diseases": [
+            {
+              type: data.data.proband.disease,
+              colour: "#F68F35"
+            },
+            {
+              type: 'dataNotAvailable',
+              colour: 'lightgrey'
+            }
+          ],
+          "DEBUG": false,
+          dataset: data.data.pedigree
+        }
+        pedigreejs.build(options)
+      }
       setStateData({ data: data.data, ready: true });
     } catch (err) {
       console.error(err);
@@ -336,7 +443,6 @@ const SVRare: React.FC<Props> = props => {
     let isLoading = true;
 
     getData();
-    //setStateData({ data: { proband: 'test', SV: [] }, ready: true });
 
     return () => {
       isLoading = false
@@ -352,9 +458,10 @@ const SVRare: React.FC<Props> = props => {
   } = useTable({ columns, data: stateData.data.SV }, useSortBy);
   return (
     <div>
+      <div id="pedigree"></div>
+      <div id="node_properties"></div>
       {!stateData.ready ? <Loading loading={!stateData.ready} /> :
         <>
-          <p>Disease: {stateData.data.proband.disease}</p>
           <CssBaseline />
           <MaUTable {...getTableProps()}>
             <TableHead>

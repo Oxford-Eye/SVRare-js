@@ -60,68 +60,68 @@ export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
 
   static initModel(sequelize: Sequelize.Sequelize): typeof Patient {
     return Patient.init({
-    id: {
-      autoIncrement: true,
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      unique: true
-    },
-    family_id: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    manta_path: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    canvas_path: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    bam_path: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    is_solved: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    disease: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    is_proband: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    relation_to_proband: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  }, {
-    sequelize,
-    tableName: 'Patient',
-    timestamps: false,
-    indexes: [
-      {
-        name: "ix_Patient_family_id",
-        fields: [
-          { name: "family_id" },
-        ]
+      id: {
+        autoIncrement: true,
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true
       },
-      {
-        name: "ix_Patient_name",
-        unique: true,
-        fields: [
-          { name: "name" },
-        ]
+      name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true
       },
-    ]
-  });
+      family_id: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      manta_path: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      canvas_path: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      bam_path: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      is_solved: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true
+      },
+      disease: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      is_proband: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true
+      },
+      relation_to_proband: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
+    }, {
+      sequelize,
+      tableName: 'Patient',
+      timestamps: false,
+      indexes: [
+        {
+          name: "ix_Patient_family_id",
+          fields: [
+            { name: "family_id" },
+          ]
+        },
+        {
+          name: "ix_Patient_name",
+          unique: true,
+          fields: [
+            { name: "name" },
+          ]
+        },
+      ]
+    });
   }
 }

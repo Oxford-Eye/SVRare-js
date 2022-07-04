@@ -12,3 +12,17 @@ export type SVCarrier = {
   disease: string,
   similarity: number,
 }
+
+export type PedigreeMember = {
+  name: string,
+  display_name?: string,
+  level: number,
+  [disease: string]: any,
+  sex: 'M' | 'F' | null,
+  mother?: string,
+  father?: string,
+  proband?: boolean,
+  top_level?: boolean,
+  age?: number,
+  status?: number
+}

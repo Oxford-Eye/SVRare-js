@@ -10,9 +10,11 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { SVCarrier } from './types/SVRare';
 import fs from 'fs';
+import { PedigreeMember } from './types/SVRare';
 import * as patientDict from './localPatientDict.json';
 
 const ENV_FILE = process.env.ENV_FILE || '.env'
+console.log(process.env.ENV_FILE)
 dotenv.config({
   path: path.resolve(process.cwd(), ENV_FILE)
 });
@@ -84,6 +86,145 @@ app.get("/families", async (_, res: Response) => {
     console.log(error);
   }
 });
+
+app.get("/family", async (req: Request, res: Response) => {
+  // get family info from database
+  const familyId = req.query.familyId as unknown as string;
+  try {
+    const family = await models.Patient.findAll({
+      where: {
+        family_id: familyId
+      }
+    });
+    res.json({
+      status: 500,
+      data: family
+    })
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+const getPed = async (familyId: string, pedFile: string) => {
+  // get proband and members with genotype data
+  try {
+    const dbFamily = await models.Patient.findAll({
+      where: {
+        family_id: familyId
+      }
+    });
+    const members = dbFamily.map(member => member.name)
+    let proband: string | undefined,
+      disease: string | undefined;
+    if (dbFamily.length > 0) {
+      proband = dbFamily.find(member => member.is_proband)!.name
+      disease = dbFamily.find(member => member.is_proband)!.disease
+    }
+
+    // get pedigree from pedigree file
+    const rawData = fs.readFileSync(pedFile, { encoding: 'utf8', flag: 'r' })
+    const pedigree: PedigreeMember[] = rawData.split('\n').map(line => {
+      const [FamilyId, name, father, mother, sex, affected] = line.split('\t')
+      return {
+        FamilyId, name, father, mother, sex, affected
+      }
+    }).filter(member => member.FamilyId === familyId).map(d => {
+      const member: PedigreeMember = {
+        name: d.name,
+        display_name: d.name,
+        sex: d.sex === '1' ? 'M' : d.sex === '2' ? 'F' : null,
+        proband: d.name === proband,
+        level: 0,
+      }
+      if (d.father !== '0') member.father = d.father
+      if (d.mother !== '0') member.mother = d.mother
+      if (d.father === '0' && d.mother === '0') member.noparents = true
+      if (disease && disease !== 'missing') {
+        if (d.affected === '2') {
+          member.disease = disease
+          member[disease] = true
+        }
+      }
+      if (members.includes(d.name)) {
+        //member.dataNotAvailable = false
+      } else {
+        member.dataNotAvailable = true
+        member.disease = 'dataNotAvailable'
+      }
+      return member
+    })
+
+    // work out level / top level
+    const tops = pedigree.filter(member => (!member.father) && (!member.mother))
+    tops.forEach(top => {
+      top.level = findLevelFromPedigree(top, pedigree, 0)
+    })
+    const maxLevel = Math.max(...pedigree.map(member => member.level))
+    pedigree.forEach(member => {
+      if (member.level === maxLevel) {
+        member.top_level = true
+      }
+    })
+
+    // !! Have to assign parents to members wtih 'noparents' to avoid pedigreejs from crashing!
+    // https://github.com/CCGE-BOADICEA/pedigreejs/issues/143
+
+    pedigree.forEach(member => {
+      if (!member.top_level && member.noparents) {
+        console.log(member)
+        // find partner's parents. [if not, ...]
+        const children = pedigree.filter(m => m.father === member.name || m.mother === member.name)
+        if (children.length > 0) {
+          const partnerNames = [... new Set(children.map(child => [child.father, child.mother]).flat())].filter(p => p !== member.name);
+          const partnerWithParents = partnerNames.find(p => !(pedigree.find(m => m.name === p)!.noparents))
+          const thePartner = pedigree.find(m => m.name === partnerWithParents);
+          if (thePartner) {
+            member.father = thePartner.father;
+            member.mother = thePartner.mother;
+          }
+        }
+      }
+    })
+    console.log(pedigree)
+    return pedigree
+  } catch (error) {
+    console.log(error);
+    return []
+  }
+}
+
+
+const findLevelFromPedigree = (member: PedigreeMember, pedigree: PedigreeMember[], level: number): number => {
+  // recursively find the member's level
+  const children = pedigree.filter(m =>
+    m.father === member.name || m.mother === member.name
+  )
+  if (children.length !== 0) {
+    level += 1
+    return Math.max(
+      ...children.map(child => findLevelFromPedigree(child, pedigree, level))
+    )
+  }
+  return level
+}
+
+app.get("/pedigree", async (req: Request, res: Response) => {
+  // get pedigree from ped files, if they are available
+  const familyId = req.query.familyId as unknown as string;
+
+  if (process.env.PEDIGREE_PATH && fs.existsSync(path.join(process.env.PEDIGREE_PATH, `${familyId}.ped`))) {
+    const pedigree = await getPed(familyId, path.join(process.env.PEDIGREE_PATH, `${familyId}.ped`));
+    res.json({
+      status: 500,
+      data: pedigree
+    })
+  } else {
+    res.json({
+      status: 500,
+      data: []
+    })
+  }
+})
 
 app.get("/patient_sv", async (req: Request, res: Response) => {
   try {
