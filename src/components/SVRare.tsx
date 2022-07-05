@@ -124,9 +124,6 @@ const SVRare: React.FC<Props> = props => {
       Header: 'carriers',
       //accessor: 'carriers',
       Cell: ({ row }) => {
-        if (row.original['sv.N_carriers'] <= 1) {
-          return ''
-        }
         return (<Carrier
           baseUrl={props.baseUrl}
           familyId={familyId}
@@ -205,7 +202,6 @@ const SVRare: React.FC<Props> = props => {
             return track
           })
         }).flat();
-        console.log(tracks);
         if (size > IGV_MAX_VIEW) {
           // split breaking points
           browsers = [
