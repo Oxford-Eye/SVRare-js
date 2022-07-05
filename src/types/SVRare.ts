@@ -26,3 +26,17 @@ export type PedigreeMember = {
   age?: number,
   status?: number
 }
+
+export type FamilyMember = {
+  id: number,
+  name: string,
+  family_id: string,
+  manta_path?: string,
+  canvas_path?: string,
+  svtools_path?: string,
+  is_solved: boolean,
+  disease: string,
+  is_proband: boolean,
+  relation_to_proband: string,
+  [anyString: string]: any,
+}

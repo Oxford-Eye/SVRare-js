@@ -96,6 +96,7 @@ app.get("/family", async (req: Request, res: Response) => {
         family_id: familyId
       }
     });
+
     res.json({
       status: 500,
       data: family
@@ -171,7 +172,6 @@ const getPed = async (familyId: string, pedFile: string) => {
 
     pedigree.forEach(member => {
       if (!member.top_level && member.noparents) {
-        console.log(member)
         // find partner's parents. [if not, ...]
         const children = pedigree.filter(m => m.father === member.name || m.mother === member.name)
         if (children.length > 0) {
@@ -185,7 +185,6 @@ const getPed = async (familyId: string, pedFile: string) => {
         }
       }
     })
-    console.log(pedigree)
     return pedigree
   } catch (error) {
     console.log(error);

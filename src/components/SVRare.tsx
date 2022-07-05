@@ -15,7 +15,7 @@ import Carrier from './Carrier'
 import path from 'path';
 import dotenv from 'dotenv';
 import { IgvDivProps } from './Igv';
-import { PedigreeMember } from '../types/SVRare';
+import { PedigreeMember, FamilyMember } from '../types/SVRare';
 import * as pedigreejs from 'pedigreejs';
 import '../../node_modules/pedigreejs/build/pedigreejs.v2.1.0-rc7.css'
 import '../styles/SVRare.css'
@@ -54,7 +54,7 @@ interface Props {
 interface SVData {
   proband: Patient,
   pedigree: PedigreeMember[],
-  family: any[],
+  family: FamilyMember[],
   SV: any[]
 }
 
@@ -185,6 +185,27 @@ const SVRare: React.FC<Props> = props => {
       Cell: ({ row }) => {
         const size = row.original['sv.end'] - row.original['sv.start'];
         let browsers: IgvDivProps[] = [];
+        const tracks = stateData.data.family.sort((a: FamilyMember, b: FamilyMember) => {
+          // sort on proband and disease
+          if (a.is_proband === b.is_proband) {
+            return b.disease.length - a.disease.length
+          }
+          return (b.is_proband as unknown as number) - (a.is_proband as unknown as number)
+        }).map(member => {
+          // load all paths
+          return Object.keys(member).filter(k => k.endsWith('_path') && member[k]).map(k => {
+            const track: any = {
+              name: member.name,
+              type: k === 'bam_path' ? 'alignment' : 'variant',
+              format: k === 'bam_path' ? 'bam' : 'vcf',
+              url: member[k].replace(process.env.REACT_APP_PATH_REPLACE_ORIGIN, process.env.REACT_APP_PATH_REPLACE_TARGET),
+              indexURL: member[k].replace(process.env.REACT_APP_PATH_REPLACE_ORIGIN, process.env.REACT_APP_PATH_REPLACE_TARGET) + (k === 'bam_path' ? '.bai' : '.tbi'),
+            }
+            if (k === 'bam_path') track.displayMode = 'SQUISHED'
+            return track
+          })
+        }).flat();
+        console.log(tracks);
         if (size > IGV_MAX_VIEW) {
           // split breaking points
           browsers = [
@@ -193,42 +214,14 @@ const SVRare: React.FC<Props> = props => {
               igvOptions: {
                 genome: process.env.REACT_APP_GENOME_BUILD!,
                 locus: `${row.original['sv.chrom']}:${Math.round(row.original['sv.start'] - IGV_BP_PADDING)}-${Math.round(row.original['sv.start'] + IGV_BP_PADDING)}`,
-                tracks: [{
-                  name: stateData.data.proband.name,
-                  type: 'alignment',
-                  format: 'bam',
-                  url: stateData.data.proband.bam_path,
-                  indexURL: stateData.data.proband.bam_path + '.bai',
-                  displayMode: 'SQUISHED',
-                }, {
-                  name: stateData.data.proband.name,
-                  type: 'variant',
-                  format: 'vcf',
-                  url: stateData.data.proband.manta_path,
-                  indexURL: stateData.data.proband.manta_path + '.tbi',
-                }
-                ],
+                tracks,
               }
             }, {
               divId: 1,
               igvOptions: {
                 genome: process.env.REACT_APP_GENOME_BUILD!,
                 locus: `${row.original['sv.chrom']}:${Math.round(row.original['sv.end'] - IGV_BP_PADDING)}-${Math.round(row.original['sv.end'] + IGV_BP_PADDING)}`,
-                tracks: [{
-                  name: stateData.data.proband.name,
-                  type: 'alignment',
-                  format: 'bam',
-                  url: stateData.data.proband.bam_path,
-                  indexURL: stateData.data.proband.bam_path + '.bai',
-                  displayMode: 'SQUISHED',
-                }, {
-                  name: stateData.data.proband.name,
-                  type: 'variant',
-                  format: 'vcf',
-                  url: stateData.data.proband.manta_path,
-                  indexURL: stateData.data.proband.manta_path + '.tbi',
-                }
-                ],
+                tracks,
               }
             }
           ]
@@ -239,22 +232,7 @@ const SVRare: React.FC<Props> = props => {
               igvOptions: {
                 genome: process.env.REACT_APP_GENOME_BUILD!,
                 locus: `${row.original['sv.chrom']}:${Math.round(row.original['sv.start'] - IGV_SV_PADDING * size)}-${Math.round(row.original['sv.end'] + IGV_SV_PADDING * size)}`,
-                tracks: [{
-                  name: stateData.data.proband.name,
-                  type: 'alignment',
-                  format: 'bam',
-                  url: stateData.data.proband.bam_path,
-                  indexURL: stateData.data.proband.bam_path + '.bai',
-                  displayMode: 'SQUISHED',
-                  visibilityWindow: IGV_MAX_VIEW * (1 + 2 * IGV_SV_PADDING),
-                }, {
-                  name: stateData.data.proband.name,
-                  type: 'variant',
-                  format: 'vcf',
-                  url: stateData.data.proband.manta_path,
-                  indexURL: stateData.data.proband.manta_path + '.tbi',
-                }
-                ],
+                tracks,
               }
             }
           ]
@@ -295,8 +273,7 @@ const SVRare: React.FC<Props> = props => {
       const pedigreeUrl = (props.baseUrl ? props.baseUrl : "") +
         "/pedigree?familyId=" + familyId;
       pedigree = (await axios.get(pedigreeUrl)).data.data;
-      console.log(pedigree);
-      const peddigree = [
+      const pedigreeExample = [
         {
           name: 'I_3',
           display_name: 'I_3',
@@ -359,11 +336,11 @@ const SVRare: React.FC<Props> = props => {
       ]
       const familyUrl = (props.baseUrl ? props.baseUrl : "") +
         "/family?familyId=" + familyId;
-      const family = await axios.get(familyUrl);
+      const familyRes = await axios.get(familyUrl);
       // SVs
 
       const { data } = await axios.get(svUrl);
-      data.data.family = family;
+      data.data.family = familyRes.data.data;
       data.data.pedigree = pedigree;
       // sort genes against hpoGenes
       const hpoSymbols = hpoGenes.map((d: any) => d['gene.symbol']);
