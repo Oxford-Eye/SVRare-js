@@ -10,6 +10,7 @@ export interface PatientAttributes {
   manta_path?: string;
   canvas_path?: string;
   bam_path?: string;
+  svtools_path?: string;
   is_solved?: boolean;
   disease?: string;
   is_proband?: boolean;
@@ -18,7 +19,7 @@ export interface PatientAttributes {
 
 export type PatientPk = "id";
 export type PatientId = Patient[PatientPk];
-export type PatientOptionalAttributes = "name" | "family_id" | "manta_path" | "canvas_path" | "bam_path" | "is_solved" | "disease" | "is_proband" | "relation_to_proband";
+export type PatientOptionalAttributes = "name" | "family_id" | "manta_path" | "svtools_path" | "canvas_path" | "bam_path" | "is_solved" | "disease" | "is_proband" | "relation_to_proband";
 export type PatientCreationAttributes = Optional<PatientAttributes, PatientOptionalAttributes>;
 
 export class Patient extends Model<PatientAttributes, PatientCreationAttributes> implements PatientAttributes {
@@ -26,6 +27,7 @@ export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
   name?: string;
   family_id?: string;
   manta_path?: string;
+  svtools_path?: string;
   canvas_path?: string;
   bam_path?: string;
   is_solved?: boolean;
@@ -76,6 +78,10 @@ export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
         allowNull: true
       },
       manta_path: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      svtools_path: {
         type: DataTypes.STRING,
         allowNull: true
       },
