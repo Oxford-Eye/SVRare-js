@@ -11,7 +11,6 @@ import path from 'path';
 import { SVCarrier } from './types/SVRare';
 import fs from 'fs';
 import { PedigreeMember } from './types/SVRare';
-import * as patientDict from './localPatientDict.json';
 
 const ENV_FILE = process.env.ENV_FILE || '.env'
 console.log(process.env.ENV_FILE)
