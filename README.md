@@ -26,3 +26,8 @@ Recently `macfuse` stopped being open source, so brewing becomes an issue. Work 
 `brew install --cask macfuse`
 
 `brew install gromgit/fuse/sshfs-mac`
+
+## Caveats
+All caveats come with [pedigreejs](https://ccge-boadicea.github.io/pedigreejs/).
+- Unless directly rendering pedigree from a `.ped` file, a node without parents, but not on the top level, will produce an error. The dirty solution is to give those nodes dummy parents. Dummy parents won't show up if `noparents` is true.
+- pedigreejs relies on jquery, and its use of the `$` sign is not natively supported by `react-scripts-ts`. My workaround is to add a plugin to the `webpack.config.*.js` to let `react-scripts-ts` recognise `$` (stored in `asset`), and copy the files to the `node_modules`.
