@@ -12,8 +12,6 @@ import TableRow from '@material-ui/core/TableRow'
 import { useAtom } from 'jotai'
 import { igvData } from '../dataStore/igv';
 import Carrier from './Carrier'
-import path from 'path';
-import dotenv from 'dotenv';
 import { IgvDivProps } from './Igv';
 import { PedigreeMember, FamilyMember } from '../types/SVRare';
 import * as pedigreejs from 'pedigreejs';
@@ -22,10 +20,7 @@ import '../styles/SVRare.css'
 //import 'react-table/react-table.css'
 //import '@material/react-text-field/dist/text-field.css';
 
-const ENV_FILE = process.env.ENV_FILE || '.env'
-dotenv.config({
-  path: path.resolve(process.cwd(), ENV_FILE)
-});
+
 const IGV_MAX_VIEW = 300000;
 const IGV_BP_PADDING = 500;
 const IGV_SV_PADDING = 0.2;
