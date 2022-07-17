@@ -29,5 +29,5 @@ Recently `macfuse` stopped being open source, so brewing becomes an issue. Work 
 
 ## Caveats
 All caveats come with [pedigreejs](https://ccge-boadicea.github.io/pedigreejs/).
-- Unless directly rendering pedigree from a `.ped` file, a node without parents, but not on the top level, will produce an error. The dirty solution is to give those nodes dummy parents. Dummy parents won't show up if `noparents` is true.
-- pedigreejs relies on jquery, and its use of the `$` sign is not natively supported by `react-scripts-ts`. My workaround is to add a plugin to the `webpack.config.*.js` to let `react-scripts-ts` recognise `$` (stored in `asset`), and copy the files to the `node_modules`.
+- Unless directly rendering pedigree from a `.ped` file, a node without parents, but not on the top level, will produce an error. But using `.ped` file lacks the support of extra node annotations (such as data not available etc). So the app reads `.ped` files, and process it. For this approach to work, just give those nodes dummy parents. Dummy parents won't show up if `noparents` is true.  
+- pedigreejs relies on jquery, and its use of the `$` sign is not natively supported by `react-scripts`. My workaround is to add a plugin to the `webpack.config.*.js` to let `react-scripts` recognise `$` (stored in `asset`), and copy the files to the `node_modules`.

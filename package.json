@@ -1,6 +1,7 @@
 {
-  "name": "svrare-js-new",
-  "version": "0.1.0",
+  "name": "svrare-js",
+  "version": "0.1.1",
+  "license": "MIT",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.12.4",
