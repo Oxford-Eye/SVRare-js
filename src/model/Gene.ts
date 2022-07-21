@@ -9,19 +9,25 @@ export interface GeneAttributes {
   id: number;
   symbol?: string;
   chrom: string;
+  prec?: number;
+  pli?: number;
+  oe_lof_upper?: number;
   start?: number;
   end?: number;
 }
 
 export type GenePk = "id";
 export type GeneId = Gene[GenePk];
-export type GeneOptionalAttributes = "symbol" | "start" | "end";
+export type GeneOptionalAttributes = "symbol" | "start" | "pli" | "prec" | "oe_lof_upper" | "end";
 export type GeneCreationAttributes = Optional<GeneAttributes, GeneOptionalAttributes>;
 
 export class Gene extends Model<GeneAttributes, GeneCreationAttributes> implements GeneAttributes {
   id!: number;
   symbol?: string;
   chrom!: string;
+  prec?: number;
+  pli?: number;
+  oe_lof_upper?: number;
   start?: number;
   end?: number;
 
@@ -76,52 +82,64 @@ export class Gene extends Model<GeneAttributes, GeneCreationAttributes> implemen
 
   static initModel(sequelize: Sequelize.Sequelize): typeof Gene {
     return Gene.init({
-    id: {
-      autoIncrement: true,
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true
-    },
-    symbol: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    chrom: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    start: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    end: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    }
-  }, {
-    sequelize,
-    tableName: 'Gene',
-    timestamps: false,
-    indexes: [
-      {
-        name: "ix_Gene_start",
-        fields: [
-          { name: "start" },
-        ]
+      id: {
+        autoIncrement: true,
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true
       },
-      {
-        name: "ix_Gene_symbol",
-        fields: [
-          { name: "symbol" },
-        ]
+      symbol: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
-      {
-        name: "ix_Gene_end",
-        fields: [
-          { name: "end" },
-        ]
+      chrom: {
+        type: DataTypes.STRING,
+        allowNull: false
       },
-    ]
-  });
+      prec: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      pli: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      oe_lof_upper: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      start: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      end: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      }
+    }, {
+      sequelize,
+      tableName: 'Gene',
+      timestamps: false,
+      indexes: [
+        {
+          name: "ix_Gene_start",
+          fields: [
+            { name: "start" },
+          ]
+        },
+        {
+          name: "ix_Gene_symbol",
+          fields: [
+            { name: "symbol" },
+          ]
+        },
+        {
+          name: "ix_Gene_end",
+          fields: [
+            { name: "end" },
+          ]
+        },
+      ]
+    });
   }
 }

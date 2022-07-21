@@ -50,11 +50,12 @@ app.use(session(sess));
 
 
 
-interface SVGene { 'sv_id': number, 'gene_id': number, 'symbol': string }
+interface SVGene { 'sv_id': number, 'gene_id': number, 'symbol': string, 'pli': number, 'prec': number, 'oe_lof_upper': number }
 
 const ensemblId2symbol = async (data: any[]): Promise<SVGene[]> => {
   /*
   This function is to convert ensembl id to symbol for a number of models,
+  also add pli and prec to the result.
   including SV_gene, SV_exon, SV_cds
   TODO: include HPO_gene
   */
@@ -63,10 +64,14 @@ const ensemblId2symbol = async (data: any[]): Promise<SVGene[]> => {
     where: { id: geneIds }
   })
   return data.map(d => {
-    const symbol: string = query.find(e => e.id === d.gene_id)?.symbol!;
+    const res = query.find(e => e.id === d.gene_id);
+
     return {
       ...d,
-      symbol: symbol
+      symbol: res?.symbol,
+      pli: res?.pli,
+      prec: res?.prec,
+      oe_lof_upper: res?.oe_lof_upper
     }
   })
 }
@@ -309,11 +314,11 @@ app.get("/patient_sv", async (req: Request, res: Response) => {
       const SV_exon_with_symbol = await ensemblId2symbol(SV_exon);
 
       // merge
-      const findSymbols = (data: SVGene[], sv_id: number): (string | undefined)[] => {
+      const findSymbols = (data: SVGene[], sv_id: number): SVGene[] => {
         const thisSVgenes = data.filter(sg => sg.sv_id === sv_id);
-        let genes: (string | undefined)[] = [];
+        let genes: SVGene[] = [];
         if (thisSVgenes.length > 0) {
-          genes = thisSVgenes.map(g => g.symbol)
+          genes = thisSVgenes
         }
         return genes;
       }

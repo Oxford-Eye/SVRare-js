@@ -11,7 +11,8 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import { useAtom } from 'jotai'
 import { igvData } from '../dataStore/igv';
-import Carrier from './Carrier'
+import Carrier from './Carrier';
+import Gene from './Gene';
 import { IgvDivProps } from './Igv';
 import { PedigreeMember, FamilyMember } from '../types/SVRare';
 import * as pedigreejs from 'pedigreejs';
@@ -98,6 +99,8 @@ const SVRare: React.FC<Props> = props => {
     {
       Header: 'Filter',
       accessor: 'filter',
+      // make it narrower
+      Cell: ({ row }) => <span dangerouslySetInnerHTML={{ __html: row.original.filter ? row.original.filter.replace(';', '<br/>') : '' }} />
     },
     {
       Header: 'Genotype',
@@ -143,18 +146,51 @@ const SVRare: React.FC<Props> = props => {
     },
     {
       Header: 'CDS',
-      accessor: 'cdsDisplay',
-      Cell: ({ row }) => <span dangerouslySetInnerHTML={{ __html: row.original.cdsDisplay }} />
+      accessor: 'cds',
+      Cell: ({ row }) => {
+        return (<>
+          {row.original.cds.map((gene: any) => gene.id !== 'more' ? <Gene
+            id={gene.id}
+            symbol={gene.symbol}
+            pli={gene.pli}
+            prec={gene.prec}
+            oe_lof_upper={gene.oe_lof_upper}
+            hpoHighlight={gene.hpoHighlight}
+          /> : <span>{gene.symbol}</span>)}
+        </>)
+      }
     },
     {
       Header: 'exons',
-      accessor: 'exonsDisplay',
-      Cell: ({ row }) => <span dangerouslySetInnerHTML={{ __html: row.original.exonsDisplay }} />
+      accessor: 'exons',
+      Cell: ({ row }) => {
+        return (<>
+          {row.original.exons.map((gene: any) => gene.id !== 'more' ? <Gene
+            id={gene.id}
+            symbol={gene.symbol}
+            pli={gene.pli}
+            prec={gene.prec}
+            oe_lof_upper={gene.oe_lof_upper}
+            hpoHighlight={gene.hpoHighlight}
+          /> : <span>{gene.symbol}</span>)}
+        </>)
+      }
     },
     {
       Header: 'Genes',
-      accessor: 'genesDisplay',
-      Cell: ({ row }) => <span dangerouslySetInnerHTML={{ __html: row.original.genesDisplay }} />
+      accessor: 'genes',
+      Cell: ({ row }) => {
+        return (<>
+          {row.original.genes.map((gene: any) => gene.id !== 'more' ? <Gene
+            id={gene.id}
+            symbol={gene.symbol}
+            pli={gene.pli}
+            prec={gene.prec}
+            oe_lof_upper={gene.oe_lof_upper}
+            hpoHighlight={gene.hpoHighlight}
+          /> : <span>{gene.symbol}</span>)}
+        </>)
+      }
     },
     {
       id: 'hpoCds',
@@ -264,67 +300,7 @@ const SVRare: React.FC<Props> = props => {
       const pedigreeUrl = (props.baseUrl ? props.baseUrl : "") +
         "/pedigree?familyId=" + familyId;
       pedigree = (await axios.get(pedigreeUrl)).data.data;
-      const pedigreeExample = [
-        {
-          name: 'I_3',
-          display_name: 'I_3',
-          sex: 'M',
-          top_level: true
-        },
-        {
-          name: 'I_4',
-          display_name: 'I_4',
-          sex: 'F',
-          top_level: true
-        },
-        {
-          name: '8196_NotSeq',
-          display_name: '8196_NotSeq',
-          sex: 'M',
-          noparents: true,
-          father: 'I_3',
-          mother: 'I_4'
-        },
-        {
-          name: '8197_NotSeq',
-          display_name: '8197_NotSeq',
-          sex: 'F',
-          father: 'I_3',
-          mother: 'I_4'
-        },
-        {
-          name: '8194_NotSeq',
-          display_name: '8194_NotSeq',
-          sex: 'M',
-          noparents: true,
-          father: 'I_3',
-          mother: 'I_4'
-        },
-        {
-          name: '8195_NotSeq',
-          display_name: '8195_NotSeq',
-          sex: 'F',
-          father: 'I_3',
-          mother: 'I_4'
-        },
-        {
-          name: 'G168387X',
-          display_name: 'G168387X',
-          sex: 'M',
-          proband: true,
-          father: '8194_NotSeq',
-          mother: '8195_NotSeq',
-          disease: 'Fine-Lubinsky Syndrome',
-        },
-        {
-          name: 'G168386Y',
-          display_name: 'G168386Y',
-          sex: 'M',
-          father: '8196_NotSeq',
-          mother: '8197_NotSeq',
-          disease: 'Fine-Lubinsky Syndrome',
-        }
-      ]
+
       const familyUrl = (props.baseUrl ? props.baseUrl : "") +
         "/family?familyId=" + familyId;
       const familyRes = await axios.get(familyUrl);
@@ -339,23 +315,37 @@ const SVRare: React.FC<Props> = props => {
       data.data.SV.forEach(async (record: any) => {
         // genes, cds, exons
         ['genes', 'cds', 'exons'].forEach(feature => {
-          record[feature].sort((a: string, b: string) => {
-            return hpoSymbols.includes(b) - hpoSymbols.includes(a)
+          record[feature].sort((a: any, b: any) => {
+            return hpoSymbols.includes(b.symbol) + b.pli * 0.67 + b.prec * 0.33 - hpoSymbols.includes(a.symbol) - a.pli * 0.67 - a.prec * 0.33
           })
           if (record[feature].length > max_N) {
+            const more = record[feature].length - max_N;
             record[feature] = record[feature].slice(0, max_N)
-            record[feature].push(`and ${record.genes.length - max_N} more`)
+            record[feature].push({
+              id: 'more',
+              pli: null,
+              prec: null,
+              oe_lof_upper: null,
+              symbol: `and ${more} more`
+            })
           }
-          record[`${feature}Display`] = record[feature].map((gene: string) => {
-            if (hpoSymbols.includes(gene)) {
-              return `<span class="hpoGene gene">${gene}</span>`
+          record[feature].forEach((gene: any) => {
+            if (hpoSymbols.includes(gene.symbol)) {
+              gene.hpoHighlight = true;
+            } else {
+              gene.hpoHighlight = false;
             }
-            return `<span class="gene">${gene}</span>`
+          })
+          record[`${feature}Display`] = record[feature].map((gene: any) => {
+            if (hpoSymbols.includes(gene.symbol)) {
+              return `<span class="hpoGene gene">${gene.symbol}</span>`
+            }
+            return `<span class="gene">${gene.symbol}</span>`
           })
         })
-        record.hpoGenes = record.genes.some((gene: any) => hpoSymbols.includes(gene))
-        record.hpoExons = record.exons.some((gene: any) => hpoSymbols.includes(gene))
-        record.hpoCds = record.cds.some((gene: any) => hpoSymbols.includes(gene))
+        record.hpoGenes = record.genes.some((gene: any) => hpoSymbols.includes(gene.symbol))
+        record.hpoExons = record.exons.some((gene: any) => hpoSymbols.includes(gene.symbol))
+        record.hpoCds = record.cds.some((gene: any) => hpoSymbols.includes(gene.symbol))
 
       })
 
