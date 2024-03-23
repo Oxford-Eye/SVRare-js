@@ -2,10 +2,10 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 //import MaterialIcon from "@material/react-material-icon";
 import axios from "axios";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
 import "../styles/Families.css";
 
 interface Family {

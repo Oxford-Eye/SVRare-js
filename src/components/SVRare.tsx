@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useTable, Column, useSortBy, Row } from "react-table";
 import Loading from './Loading';
-import CssBaseline from '@material-ui/core/CssBaseline'
-import MaUTable from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
+import CssBaseline from '@mui/material/CssBaseline'
+import MaUTable from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
 import { useAtom } from 'jotai'
 import { igvData } from '../dataStore/igv';
 import Carrier from './Carrier';
@@ -16,7 +16,7 @@ import Gene from './Gene';
 import { IgvDivProps } from './Igv';
 import { PedigreeMember, FamilyMember } from '../types/SVRare';
 import * as pedigreejs from 'pedigreejs';
-import '../../node_modules/pedigreejs/build/pedigreejs.v2.1.0-rc7.css'
+import '../../node_modules/pedigreejs/build/pedigreejs.v3.0.0-rc3.min.css'
 import '../styles/SVRare.css'
 //import 'react-table/react-table.css'
 //import '@material/react-text-field/dist/text-field.css';
@@ -228,6 +228,7 @@ const SVRare: React.FC<Props> = props => {
               format: k === 'bam_path' ? 'bam' : 'vcf',
               url: member[k].replace(process.env.REACT_APP_PATH_REPLACE_ORIGIN, process.env.REACT_APP_PATH_REPLACE_TARGET),
               indexURL: member[k].replace(process.env.REACT_APP_PATH_REPLACE_ORIGIN, process.env.REACT_APP_PATH_REPLACE_TARGET) + (k === 'bam_path' ? '.bai' : '.tbi'),
+              visibilityWindow: IGV_MAX_VIEW
             }
             if (k === 'bam_path') track.displayMode = 'SQUISHED'
             return track
@@ -264,8 +265,7 @@ const SVRare: React.FC<Props> = props => {
             }
           ]
         }
-
-        const [_, igvDataSetter] = useAtom(igvData);
+        const [,igvDataSetter] = useAtom(igvData);
         return <Link to={`/igv`} onClick={() => igvDataSetter(browsers)} target="_blank">Link</Link>
       }
     }

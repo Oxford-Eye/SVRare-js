@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import Loading from './Loading';
 import { SVCarrier } from '../types/SVRare'
-import { Tooltip } from '@material-ui/core';
+import { Tooltip } from '@mui/material';
 import '../styles/Carrier.css'
 
 type CarrierProps = {

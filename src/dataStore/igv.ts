@@ -3,7 +3,7 @@ import { IgvDivProps } from '../components/Igv';
 
 const igvData = atomWithStorage<IgvDivProps[]>('igvData', [
   {
-    divId: 0,
+    divId: 100,
     igvOptions: {
       genome: 'hg38',
       locus: 'SOX11',

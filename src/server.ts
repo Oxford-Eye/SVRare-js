@@ -256,7 +256,12 @@ app.get("/patient_sv", async (req: Request, res: Response) => {
       // repair path to bam/vcfs. need to address this issue
       // TODO:
 
-      ['bam_path', 'canvas_path', 'manta_path'].forEach((property: string) => {
+      ['bam_path', 'canvas_path', 'manta_path', 'svtools_path', 'pbsv_path'].forEach((property: string) => {
+        if (proband[property] === null) {
+          // remove property if it's null
+          delete proband[property]
+          return
+        }
         proband[property] = proband[property].replace(process.env.PATH_REPLACE_ORIGIN, process.env.PATH_REPLACE_TARGET)
       })
 
@@ -291,7 +296,7 @@ app.get("/patient_sv", async (req: Request, res: Response) => {
           ['sv', 'dbvar_count', 'ASC'],
         ],
         offset: page * pageSize,
-        //limit: pageSize
+        limit: pageSize
       });
       const SV_ids = [...new Set(PS.map(ps => ps.sv_id))];
       // SV_gene

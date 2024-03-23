@@ -1,6 +1,6 @@
 
 import React from 'react';
-import igv from 'igv';
+import igv from 'igv/dist/igv.esm.min.js';
 import { useAtom } from 'jotai';
 import { igvData } from '../dataStore/igv'
 
@@ -29,13 +29,12 @@ export type IgvDivProps = {
     tracks: track[],
   }
 }
-type IgvPageProps = {
-  browsers: IgvDivProps[]
-}
-
 
 const IgvPage: React.FC = () => {
   const [browsers] = useAtom(igvData);
+  if (browsers[0].divId === 100){
+    return 
+  }
   return (
     <>
       {browsers.map((browser) => {
@@ -49,7 +48,7 @@ const IgvDiv: React.FC<IgvDivProps> = props => {
     const igvContainer = document.getElementById(props.divId.toString());
     const { igvOptions } = props;
     igv.createBrowser(igvContainer, igvOptions);
-  }, []);
+  }, [props.igvOptions]);
   return (
     <>
       <div id={props.divId.toString()} style={igvStyle}></div>

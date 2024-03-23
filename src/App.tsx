@@ -8,7 +8,7 @@ import IgvPage from "./components/Igv";
 
 class App extends React.Component<Object, Object> {
   public render() {
-    const baseUrl = "http://localhost:9000";
+    const baseUrl = "http://localhost:" + process.env.REACT_APP_PATH_SERVER_PORT;
     return (
       <Router>
         <div className="App">

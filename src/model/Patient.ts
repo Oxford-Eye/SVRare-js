@@ -11,6 +11,7 @@ export interface PatientAttributes {
   canvas_path?: string;
   bam_path?: string;
   svtools_path?: string;
+  pbsv_path?: string;
   is_solved?: boolean;
   disease?: string;
   is_proband?: boolean;
@@ -30,6 +31,7 @@ export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
   svtools_path?: string;
   canvas_path?: string;
   bam_path?: string;
+  pbsv_path?: string;
   is_solved?: boolean;
   disease?: string;
   is_proband?: boolean;
@@ -90,6 +92,10 @@ export class Patient extends Model<PatientAttributes, PatientCreationAttributes>
         allowNull: true
       },
       bam_path: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      pbsv_path: {
         type: DataTypes.STRING,
         allowNull: true
       },

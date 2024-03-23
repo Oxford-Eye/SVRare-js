@@ -1,9 +1,9 @@
 import React from 'react';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
-import { createTheme } from '@material-ui/core/styles';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import { createTheme } from '@mui/material/styles';
 
 type GeneProps = {
   id: number,
