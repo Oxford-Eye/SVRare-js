@@ -77,6 +77,8 @@ const SVRare: React.FC<Props> = props => {
 
   const [searchParams, _] = useSearchParams();
   const familyId = searchParams.get('familyId')!
+  const pageSize = searchParams.get('pageSize')!
+  const page = searchParams.get('page')!
   // Column
   const columns: Column<any>[] = React.useMemo(() => {
     return [{
@@ -277,7 +279,7 @@ const SVRare: React.FC<Props> = props => {
 
     try {
       const svUrl = (props.baseUrl ? props.baseUrl : "") +
-        "/patient_sv?familyId=" + familyId;
+        "/patient_sv?familyId=" + familyId + "&pageSize=" + pageSize + "&page=" + page;
       const patientHpoUrl = (props.baseUrl ? props.baseUrl : "") +
         "/patient_hpo?familyId=" + familyId;
       const hpoGeneUrlBase = (props.baseUrl ? props.baseUrl : "") +

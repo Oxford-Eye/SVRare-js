@@ -171,7 +171,7 @@ const getPed = async (familyId: string, pedFile: string) => {
       }
     })
 
-    // !! Have to assign parents to members wtih 'noparents' to avoid pedigreejs from crashing!
+    // !! Have to assign parents to members with 'noparents' to avoid pedigreejs from crashing!
     // https://github.com/CCGE-BOADICEA/pedigreejs/issues/143
 
     pedigree.forEach(member => {
